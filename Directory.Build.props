@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://github.com/furniox-labs/FurniOxSolidWorks-MCP</PackageProjectUrl>
 
     <!-- Version Information -->
-    <Version>0.1.0-alpha.1</Version>
+    <Version>0.1.0-alpha.2</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>

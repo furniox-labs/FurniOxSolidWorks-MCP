@@ -4,7 +4,7 @@ Public/basic SolidWorks MCP server for day-to-day CAD editing and file operation
 
 ## Status
 
-- Current release: `0.1.0-alpha.1`
+- Current release: `0.1.0-alpha.2`
 - Release stage: alpha
 - Current state: working for the public/basic workflow set
 - Validation note: more testing is still needed across SolidWorks versions, template configurations, and larger production assemblies
@@ -43,9 +43,9 @@ The public/basic distribution does not include:
 This is the easiest path for non-technical users once release assets are published.
 
 Current alpha packaging notes:
-- package format: Windows `.exe` bundle in a zip archive
-- runtime model: framework-dependent for now
-- extra prerequisite: .NET 10 Desktop Runtime on Windows
+- package format: Windows self-contained single-file `.exe` in a zip archive
+- runtime model: self-contained
+- extra prerequisite: no separate .NET runtime install is required
 
 Install steps:
 1. Download the latest Windows release package from [Releases](https://github.com/furniox-labs/FurniOxSolidWorks-MCP/releases).
@@ -59,7 +59,7 @@ To build the packaged Windows release yourself:
 pwsh ./scripts/publish-public-release.ps1
 ```
 
-The script builds the public solution in `Release`, collects the MCP executable output, and creates a zip archive under `out/releases/`.
+The script packages from the public source tree, publishes a self-contained single-file Windows build, and creates a zip archive under `out/releases/`.
 
 ### Option 2: Build from source
 

@@ -53,7 +53,7 @@ Typical path:
 
 The public repo is currently in alpha.
 
-- Current version: `0.1.0-alpha.1`
+- Current version: `0.1.0-alpha.2`
 - Status: working public/basic MCP
 - Validation note: more testing is needed across SolidWorks installs, templates, and real-world assemblies
 

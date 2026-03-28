@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FurniOx.SolidWorks.Core\FurniOx.SolidWorks.Core.csproj" />
-    <ProjectReference Include="..\FurniOx.SolidWorks.Shared\FurniOx.SolidWorks.Shared.csproj" />
   </ItemGroup>
 
   <!-- Always exclude legacy code -->
