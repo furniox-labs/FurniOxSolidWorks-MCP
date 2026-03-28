@@ -26,13 +26,14 @@ function Remove-PathIfExists {
     }
 }
 
-$privateRepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$isPrivateSourceRepo = Test-Path -LiteralPath (Join-Path $privateRepoRoot "src/FurniOx.SolidWorks.MCP.Private\FurniOx.SolidWorks.MCP.Private.csproj")
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$hasExportPipeline = (Test-Path -LiteralPath (Join-Path $repoRoot "scripts/export-public.ps1")) -and
+    (Test-Path -LiteralPath (Join-Path $repoRoot "eng/public-export.manifest.json"))
 
-$publicSourceRoot = $privateRepoRoot
-if ($isPrivateSourceRepo) {
-    $publicSourceRoot = Join-Path $privateRepoRoot "out/public-release-package-source"
-    & powershell -ExecutionPolicy Bypass -File (Join-Path $privateRepoRoot "scripts/export-public.ps1") -DestinationPath $publicSourceRoot -Force
+$publicSourceRoot = $repoRoot
+if ($hasExportPipeline) {
+    $publicSourceRoot = Join-Path $repoRoot "out/public-release-package-source"
+    & powershell -ExecutionPolicy Bypass -File (Join-Path $repoRoot "scripts/export-public.ps1") -DestinationPath $publicSourceRoot -Force
     if ($LASTEXITCODE -ne 0) {
         throw "Public export failed."
     }
@@ -40,7 +41,7 @@ if ($isPrivateSourceRepo) {
 
 $version = Get-VersionFromProps -PropsPath (Join-Path $publicSourceRoot "Directory.Build.props")
 $releaseName = "FurniOxSolidWorks-MCP-$version-$Runtime"
-$releaseRoot = Join-Path $privateRepoRoot "out/releases"
+$releaseRoot = Join-Path $repoRoot "out/releases"
 $publishPath = Join-Path $releaseRoot "$releaseName-publish"
 $packagePath = Join-Path $releaseRoot $releaseName
 $zipPath = Join-Path $releaseRoot "$releaseName.zip"
@@ -67,9 +68,10 @@ $existingHome = $env:HOME
 $existingDotnetNoLogo = $env:DOTNET_NOLOGO
 $existingGenerateAspNetCertificate = $env:DOTNET_GENERATE_ASPNET_CERTIFICATE
 $existingAddGlobalToolsToPath = $env:DOTNET_ADD_GLOBAL_TOOLS_TO_PATH
+$existingNugetPackages = $env:NUGET_PACKAGES
 
 try {
-    $dotnetHome = Join-Path $privateRepoRoot ".dotnet_cli\publish-public-release"
+    $dotnetHome = Join-Path $repoRoot ".dotnet_cli\publish-public-release"
     if (-not (Test-Path -LiteralPath $dotnetHome)) {
         New-Item -ItemType Directory -Path $dotnetHome -Force | Out-Null
     }
@@ -81,6 +83,12 @@ try {
     $env:DOTNET_NOLOGO = "1"
     $env:DOTNET_GENERATE_ASPNET_CERTIFICATE = "false"
     $env:DOTNET_ADD_GLOBAL_TOOLS_TO_PATH = "false"
+    if ([string]::IsNullOrWhiteSpace($env:NUGET_PACKAGES)) {
+        $userPackageCache = Join-Path $env:USERPROFILE ".nuget\packages"
+        if (Test-Path -LiteralPath $userPackageCache) {
+            $env:NUGET_PACKAGES = $userPackageCache
+        }
+    }
 
     Push-Location $publicSourceRoot
 
@@ -111,6 +119,7 @@ finally {
     Pop-Location
     $env:DOTNET_CLI_HOME = $existingDotnetCliHome
     $env:HOME = $existingHome
+    $env:NUGET_PACKAGES = $existingNugetPackages
     $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = $null
     $env:DOTNET_CLI_TELEMETRY_OPTOUT = $null
     $env:DOTNET_NOLOGO = $existingDotnetNoLogo

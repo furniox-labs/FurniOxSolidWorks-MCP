@@ -48,22 +48,7 @@
     <None Remove="Adapters_Legacy\**" />
   </ItemGroup>
 
-  <!-- Files owned by Core.Private — always excluded from Core.
-       Core.Private extends Core with analysis, batch, custom property, bridge, and rename operations.
-       This is the separate-projects pattern: private features never compile in the public project. -->
-  <ItemGroup>
-    <Compile Remove="Bridge\**" />
-    <Compile Remove="DocManager\**" />
-    <Compile Remove="Adapters\Analysis\**" />
-    <Compile Remove="Adapters\AnalysisOperations.cs" />
-    <Compile Remove="Adapters\BatchCustomProperty*.cs" />
-    <Compile Remove="Adapters\CustomProperty*.cs" />
-    <Compile Remove="Adapters\SummaryInfoOperations.cs" />
-    <Compile Remove="Adapters\TargetDocumentResolutionSupport.cs" />
-    <Compile Remove="Adapters\Document\*Rename*.cs" />
-    <Compile Remove="Operations\AnalysisOperationNames.cs" />
-    <Compile Remove="Operations\CustomPropertyOperationNames.cs" />
-    <Compile Remove="Operations\SummaryInfoOperationNames.cs" />
-  </ItemGroup>
+  
+  
 
 </Project>

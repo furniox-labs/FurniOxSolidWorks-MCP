@@ -35,6 +35,14 @@ public static class SolidWorksPublicHostingExtensions
 
     public static void AddSolidWorksSerilog(this HostApplicationBuilder host)
     {
+        // Enable Serilog self-diagnostics for sink failures
+        var selfLogPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "FurniOx", "logs", "furniox-mcp-selflog.txt");
+        Directory.CreateDirectory(Path.GetDirectoryName(selfLogPath)!);
+        Serilog.Debugging.SelfLog.Enable(
+            msg => File.AppendAllText(selfLogPath, $"{DateTime.UtcNow:O} {msg}{Environment.NewLine}"));
+
         host.Services.AddSerilog((services, configuration) =>
         {
             configuration
@@ -42,17 +50,23 @@ public static class SolidWorksPublicHostingExtensions
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
                 .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
                 .Enrich.FromLogContext()
+                .Enrich.WithProcessId()
+                .Enrich.WithThreadId()
+                .Enrich.WithMachineName()
                 .WriteTo.Console(
-                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    // IMPORTANT: MCP transport uses stdout. All log output MUST go to stderr.
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}",
                     standardErrorFromLevel: Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.File(
+                .WriteTo.Async(a => a.File(
                     path: Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                         "FurniOx", "logs", "furniox-mcp-.log"),
                     rollingInterval: Serilog.RollingInterval.Day,
                     fileSizeLimitBytes: 10_485_760,
                     rollOnFileSizeLimit: true,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+                    retainedFileCountLimit: 14,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext:l}] [PID:{ProcessId}] [T{ThreadId}] {Message:lj}{NewLine}{Exception}"),
+                    bufferSize: 10_000);
         });
     }
 

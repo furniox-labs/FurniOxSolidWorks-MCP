@@ -18,8 +18,6 @@ public sealed class SmartRouter : ISmartRouter
     private readonly IPerformanceMonitor _performanceMonitor;
     private readonly SolidWorksSettings _settings;
     private readonly ILogger<SmartRouter> _logger;
-    private readonly ISolidWorksAdapter? _bridge;
-
     public SmartRouter(
         ICircuitBreaker circuitBreaker,
         ISolidWorksAdapter adapter,
@@ -32,8 +30,7 @@ public sealed class SmartRouter : ISmartRouter
             staRunner,
             performanceMonitor,
             new SolidWorksSettings(),
-            logger,
-            bridge: null)
+            logger)
     {
     }
 
@@ -43,8 +40,7 @@ public sealed class SmartRouter : ISmartRouter
         IStaTaskRunner staRunner,
         IPerformanceMonitor performanceMonitor,
         SolidWorksSettings settings,
-        ILogger<SmartRouter> logger,
-        ISolidWorksAdapter? bridge = null)
+        ILogger<SmartRouter> logger)
     {
         _circuitBreaker = circuitBreaker;
         _adapter = adapter;
@@ -52,7 +48,6 @@ public sealed class SmartRouter : ISmartRouter
         _performanceMonitor = performanceMonitor;
         _settings = settings;
         _logger = logger;
-        _bridge = bridge;
     }
 
     public async Task<ExecutionResult> RouteAsync(string operation, IDictionary<string, object?> parameters, CancellationToken cancellationToken = default)
@@ -73,36 +68,13 @@ public sealed class SmartRouter : ISmartRouter
                 return result;
             }
 
-            if (_bridge != null && _bridge.CanHandle(operation))
-            {
-                try
-                {
-                    _logger.LogDebug("Routing '{Operation}' via bridge", operation);
-                    result = await _bridge.ExecuteAsync(operation, parameters, cancellationToken);
-
-                    if (result.Success)
-                    {
-                        return result;
-                    }
-
-                    _logger.LogWarning(
-                        "Bridge failed for '{Operation}': {Message}. Falling back to direct COM.",
-                        operation,
-                        result.Message);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    _logger.LogWarning(
-                        ex,
-                        "Bridge threw for '{Operation}'. Falling back to direct COM.",
-                        operation);
-                }
-            }
-
+            _logger.LogDebug("Routing '{Operation}' via direct COM", operation);
             result = await _circuitBreaker.ExecuteAsync(
                 ct => _staRunner.RunAsync(() => _adapter.ExecuteAsync(operation, parameters, ct), ct),
                 cancellationToken);
 
+            _logger.LogInformation("'{Operation}' completed via COM in {ElapsedMs}ms",
+                operation, stopwatch.ElapsedMilliseconds);
             return result;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

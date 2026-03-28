@@ -50,8 +50,8 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
         _assemblyBrowserOps = new AssemblyBrowserOperations(connection, settings, loggerFactory.CreateLogger<AssemblyBrowserOperations>());
         _sketchOps = CreateSketchOperations(connection, settings, loggerFactory);
         _featureOps = CreateFeatureOperations(connection, settings, loggerFactory);
-        _configOps = new ConfigurationOperations(connection, settings, loggerFactory.CreateLogger<ConfigurationOperations>());
-        _selectionOps = new SelectionOperations(connection, settings, loggerFactory.CreateLogger<SelectionOperations>());
+        _configOps = new ConfigurationOperations(connection, settings, loggerFactory);
+        _selectionOps = new SelectionOperations(connection, settings, loggerFactory);
         _sortingOps = CreateSortingOperations(connection, settings, loggerFactory);
     }
 

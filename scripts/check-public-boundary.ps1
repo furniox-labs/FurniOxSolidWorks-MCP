@@ -132,15 +132,7 @@ foreach ($check in $publicProjectChecks) {
 
     $projectText = Get-Content -LiteralPath $projectPath -Raw
     foreach ($token in $check.Forbidden) {
-        if ($projectText.IndexOf($token, [System.StringComparison]::Ordinal) -ge 0 -and $check.Path -notlike "*.Shared.csproj") {
-            if ($check.Path -eq "src/FurniOx.SolidWorks.Core/FurniOx.SolidWorks.Core.csproj" -and $token -in @("AnalysisOperationNames.cs", "CustomPropertyOperationNames.cs", "SummaryInfoOperationNames.cs")) {
-                continue
-            }
-
-            if ($check.Path -eq "src/FurniOx.SolidWorks.MCP/FurniOx.SolidWorks.MCP.csproj" -and $token -in @("BridgeBootstrapService.cs", "AnalysisTools.cs", "BatchAnalysisTools.cs", "BatchCustomPropertyTools.cs", "CustomPropertyTools.cs", "SummaryInfoTools.cs")) {
-                continue
-            }
-
+        if ($projectText.IndexOf($token, [System.StringComparison]::Ordinal) -ge 0) {
             $errors.Add("Unexpected private token '$token' still referenced in $($check.Path)")
         }
     }

@@ -16,8 +16,12 @@
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Serilog.Sinks.Async" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="Serilog.Enrichers.Environment" />
+    <PackageReference Include="Serilog.Enrichers.Process" />
+    <PackageReference Include="Serilog.Enrichers.Thread" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,15 +50,7 @@
     <None Remove="Tools_Legacy\**" />
   </ItemGroup>
 
-  <!-- Private-only tools: always excluded from MCP.
-       MCP.Private extends MCP with analysis, batch, custom property, and bridge tools. -->
-  <ItemGroup>
-    <Compile Remove="BridgeBootstrapService.cs" />
-    <Compile Remove="Tools\AnalysisTools.cs" />
-    <Compile Remove="Tools\BatchAnalysisTools.cs" />
-    <Compile Remove="Tools\BatchCustomPropertyTools.cs" />
-    <Compile Remove="Tools\CustomPropertyTools.cs" />
-    <Compile Remove="Tools\SummaryInfoTools.cs" />
-  </ItemGroup>
+  
+  
 
 </Project>

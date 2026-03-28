@@ -32,12 +32,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="AnalysisOperationsTests.cs" />
-    <Compile Remove="BatchCustomPropertySupportTests.cs" />
-    <Compile Remove="BridgeSettingsTests.cs" />
-    <Compile Remove="CustomPropertySupportTests.cs" />
-    <Compile Remove="SummaryInfoOperationsTests.cs" />
-  </ItemGroup>
-
 </Project>
