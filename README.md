@@ -7,7 +7,7 @@ Public/basic SolidWorks MCP server for day-to-day CAD editing and file operation
 - Current release: `0.1.0-alpha.2`
 - Release stage: alpha
 - Current state: working for the public/basic workflow set
-- Validation note: more testing is still needed across SolidWorks versions, template configurations, and larger production assemblies
+- Validation note: the current public toolset has been exercised in real SolidWorks usage and is working for the intended public/basic scope; broader testing is still needed across additional SolidWorks versions, template configurations, and larger production assemblies
 
 ## Public Surface
 

@@ -139,7 +139,20 @@ public sealed class FeatureRevolveOperations : OperationHandlerBase
         {
             model.ClearSelection2(true);
 
-            var axisSelected = modelExt.SelectByID2(axisEntity, axisEntityType, 0, 0, 0, false, 16, null, 0);
+            // The sketch MUST be pre-selected before FeatureRevolve2.
+            var lastSketch = FindLastSketch(model);
+            if (lastSketch == null)
+            {
+                return Task.FromResult(ExecutionResult.Failure("No sketch found to revolve. Create a sketch first."));
+            }
+
+            var sketchSelected = modelExt.SelectByID2(lastSketch.Name, "SKETCH", 0, 0, 0, false, 0, null, 0);
+            if (!sketchSelected)
+            {
+                return Task.FromResult(ExecutionResult.Failure($"Failed to select sketch '{lastSketch.Name}' for revolve."));
+            }
+
+            var axisSelected = modelExt.SelectByID2(axisEntity, axisEntityType, 0, 0, 0, true, 16, null, 0);
             if (!axisSelected)
             {
                 return Task.FromResult(ExecutionResult.Failure($"Failed to select axis entity: {axisEntity} (type: {axisEntityType}). Check entity name and type."));
@@ -236,6 +249,21 @@ public sealed class FeatureRevolveOperations : OperationHandlerBase
         {
             model.ClearSelection2(true);
         }
+    }
+
+    private static IFeature? FindLastSketch(ModelDoc2 model)
+    {
+        IFeature? lastSketch = null;
+        var feat = (IFeature?)model.FirstFeature();
+        while (feat != null)
+        {
+            if (feat.GetTypeName2() == "ProfileFeature")
+            {
+                lastSketch = feat;
+            }
+            feat = (IFeature?)feat.GetNextFeature();
+        }
+        return lastSketch;
     }
 }
 

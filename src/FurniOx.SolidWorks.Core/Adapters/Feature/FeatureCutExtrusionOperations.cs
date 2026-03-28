@@ -130,6 +130,22 @@ public sealed class FeatureCutExtrusionOperations : OperationHandlerBase
         {
             model.ClearSelection2(true);
 
+            // The sketch MUST be pre-selected before FeatureCut4.
+            // UseAutoSelect only controls body selection, NOT sketch selection.
+            var lastSketch = FindLastSketch(model);
+            if (lastSketch == null)
+            {
+                return Task.FromResult(ExecutionResult.Failure("No sketch found to cut. Create a sketch first."));
+            }
+
+            _logger.LogInformation("FindLastSketch found: '{SketchName}'", lastSketch.Name);
+
+            var sketchSelected = modelExt.SelectByID2(lastSketch.Name, "SKETCH", 0, 0, 0, false, 0, null, 0);
+            if (!sketchSelected)
+            {
+                return Task.FromResult(ExecutionResult.Failure($"Failed to select sketch '{lastSketch.Name}' for cut extrusion."));
+            }
+
             if (!string.IsNullOrEmpty(startEntity))
             {
                 var startSelected = modelExt.SelectByID2(startEntity, FeatureSupport.GetEntityType(startCondition), 0, 0, 0, false, 0, null, 0);
@@ -218,6 +234,21 @@ public sealed class FeatureCutExtrusionOperations : OperationHandlerBase
         {
             model.ClearSelection2(true);
         }
+    }
+
+    private static IFeature? FindLastSketch(ModelDoc2 model)
+    {
+        IFeature? lastSketch = null;
+        var feat = (IFeature?)model.FirstFeature();
+        while (feat != null)
+        {
+            if (feat.GetTypeName2() == "ProfileFeature")
+            {
+                lastSketch = feat;
+            }
+            feat = (IFeature?)feat.GetNextFeature();
+        }
+        return lastSketch;
     }
 }
 

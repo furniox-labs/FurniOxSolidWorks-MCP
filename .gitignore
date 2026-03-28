@@ -195,6 +195,10 @@ reference/**/*.log
 .env.local
 config.local.json
 secrets.json
+.mcp.json
+.claude/settings.local.json
+.dotnet/
+.dotnet_cli/
 src/FurniOx.SolidWorks.MCP/appsettings.local.json
 src/FurniOx.SolidWorks.MCP.Private/appsettings.private.local.json
 

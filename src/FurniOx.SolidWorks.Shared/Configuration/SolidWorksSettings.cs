@@ -25,7 +25,7 @@ public sealed class SolidWorksSettings
 
     public CircuitBreakerSettings CircuitBreaker { get; set; } = new();
     public PublicProfileSettings PublicProfile { get; set; } = new();
-    public int ComParameterLimit { get; set; } = 24;
+    public int ComParameterLimit { get; set; } = 32;
 
     /// <summary>
     /// Path to the Part template file (.prtdot).
