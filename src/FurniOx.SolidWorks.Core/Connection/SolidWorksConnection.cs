@@ -21,7 +21,10 @@ internal static class ComHelper
     public static object? GetActiveObject(string progId)
     {
         var clsid = Type.GetTypeFromProgID(progId)?.GUID ?? Guid.Empty;
-        if (clsid == Guid.Empty) return null;
+        if (clsid == Guid.Empty)
+        {
+            return null;
+        }
 
         GetActiveObject(ref clsid, IntPtr.Zero, out var obj);
         return obj;
@@ -364,7 +367,9 @@ public sealed class SolidWorksConnection : IDisposable
     public (bool Connected, bool Healthy, string? Revision, bool? Visible) GetConnectionInfo()
     {
         if (_swApp == null)
+        {
             return (false, false, null, null);
+        }
 
         var healthy = CheckHealth();
         string? revision = null;
@@ -383,11 +388,15 @@ public sealed class SolidWorksConnection : IDisposable
     public (bool HasDocument, string? Title, string? Path, string? TypeName, int TypeCode, bool Saved, bool ReadOnly, string? ErrorReason) GetActiveDocumentInfo()
     {
         if (_swApp == null)
+        {
             return (false, null, null, null, 0, false, false, "Not connected");
+        }
 
         dynamic? model = _swApp.ActiveDoc;
         if (model == null)
+        {
             return (false, null, null, null, 0, false, false, "No document open");
+        }
 
         try
         {

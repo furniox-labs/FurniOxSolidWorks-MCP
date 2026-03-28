@@ -163,7 +163,7 @@ internal sealed class SketchAnalysisInspectionOperations : OperationHandlerBase
 
             if (!string.IsNullOrEmpty(outputPath))
             {
-                    if (!TryWriteJsonToFile(outputPath, result, AnalysisCamelCaseJsonOptions, out var fileSizeBytes, out var errorMessage))
+                if (!TryWriteJsonToFile(outputPath, result, AnalysisCamelCaseJsonOptions, out var fileSizeBytes, out var errorMessage))
                 {
                     _logger.LogError("Failed to write sketch analysis to file: {Path}. Error: {Error}", outputPath, errorMessage);
                     return ExecutionResult.Failure($"Failed to write to file: {errorMessage}");

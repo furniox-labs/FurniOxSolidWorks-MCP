@@ -44,10 +44,16 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> CloseModelAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var hasUnsavedChanges = model.GetSaveFlag();
         var docTitle = GetStringParam(parameters, "Title");
@@ -77,7 +83,10 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> ActivateDocumentAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         if (!parameters.TryGetValue("Title", out var titleObj) || titleObj is not string title)
         {
@@ -102,10 +111,16 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> RebuildModelAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var forceRebuild = GetBoolParam(parameters, "Force", true);
         var result = model.ForceRebuild3(forceRebuild);
@@ -120,7 +135,10 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> CloseAllDocumentsAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var includeUnsaved = GetBoolParam(parameters, "IncludeUnsaved");
         var result = app.CloseAllDocuments(includeUnsaved);
@@ -133,10 +151,16 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> EditUndoAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var count = GetIntParam(parameters, "Count", 1);
         if (count < 1)
@@ -155,10 +179,16 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> EditRedoAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var count = GetIntParam(parameters, "Count", 1);
         if (count < 1)
@@ -177,7 +207,10 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
     private Task<ExecutionResult> HideDocumentAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var title = GetStringParam(parameters, "Title");
         ModelDoc2? targetDoc = null;

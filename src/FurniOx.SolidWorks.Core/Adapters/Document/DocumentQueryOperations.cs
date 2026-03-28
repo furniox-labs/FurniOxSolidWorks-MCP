@@ -40,10 +40,16 @@ public sealed class DocumentQueryOperations : OperationHandlerBase
     private Task<ExecutionResult> GetDocumentInfoAsync()
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var lengthUnit = 0;
         try
@@ -94,7 +100,10 @@ public sealed class DocumentQueryOperations : OperationHandlerBase
     private Task<ExecutionResult> GetAllOpenDocumentsAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var visibleOnly = GetBoolParam(parameters, "VisibleOnly", false);
         var documents = app.GetDocuments().ToObjectArraySafe();
@@ -146,7 +155,10 @@ public sealed class DocumentQueryOperations : OperationHandlerBase
     private Task<ExecutionResult> GetDocumentCountAsync()
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var count = app.GetDocumentCount();
         return Task.FromResult(ExecutionResult.SuccessResult(new { Count = count }));

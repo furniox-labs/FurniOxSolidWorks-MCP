@@ -41,7 +41,10 @@ public static class SolidWorksApiExtensions
     /// <returns>Properly typed object[] or null if input is null</returns>
     public static object[]? ToObjectArraySafe(this object? comArrayResult)
     {
-        if (comArrayResult == null) return null;
+        if (comArrayResult == null)
+        {
+            return null;
+        }
 
         try
         {
@@ -73,7 +76,10 @@ public static class SolidWorksApiExtensions
     /// <returns>Properly typed double[] or null if input is null</returns>
     public static double[]? ToDoubleArraySafe(this object? comArrayResult)
     {
-        if (comArrayResult == null) return null;
+        if (comArrayResult == null)
+        {
+            return null;
+        }
 
         try
         {
@@ -105,7 +111,10 @@ public static class SolidWorksApiExtensions
     /// <returns>Properly typed int[] or null if input is null</returns>
     public static int[]? ToIntArraySafe(this object? comArrayResult)
     {
-        if (comArrayResult == null) return null;
+        if (comArrayResult == null)
+        {
+            return null;
+        }
 
         try
         {
@@ -154,8 +163,16 @@ public static class SolidWorksApiExtensions
     /// <returns>Number of elements or 0 if null</returns>
     public static int SafeArrayCount(this object? comArrayResult)
     {
-        if (comArrayResult == null) return 0;
-        if (comArrayResult is not Array safeArray) return 0;
+        if (comArrayResult == null)
+        {
+            return 0;
+        }
+
+        if (comArrayResult is not Array safeArray)
+        {
+            return 0;
+        }
+
         return safeArray.Length;
     }
 
@@ -172,12 +189,18 @@ public static class SolidWorksApiExtensions
     /// <returns>Properly typed string[] or empty array if null/empty</returns>
     public static string[] ToStringArraySafe(this object? comArrayResult)
     {
-        if (comArrayResult == null) return Array.Empty<string>();
+        if (comArrayResult == null)
+        {
+            return Array.Empty<string>();
+        }
 
         try
         {
             Array safeArray = (Array)comArrayResult;
-            if (safeArray.Length == 0) return Array.Empty<string>();
+            if (safeArray.Length == 0)
+            {
+                return Array.Empty<string>();
+            }
 
             string[] result = new string[safeArray.Length];
             for (int i = 0; i < safeArray.Length; i++)

@@ -2,6 +2,13 @@
 
 Public/basic SolidWorks MCP server for day-to-day CAD editing and file operations over native COM.
 
+## Status
+
+- Current release: `0.1.0-alpha.1`
+- Release stage: alpha
+- Current state: working for the public/basic workflow set
+- Validation note: more testing is still needed across SolidWorks versions, template configurations, and larger production assemblies
+
 ## Public Surface
 
 Public MCP tools include:
@@ -29,20 +36,53 @@ The public/basic distribution does not include:
 - rename/governance workflows
 - bridge/add-in integration and other internal acceleration layers
 
-## Requirements
+## Installation
+
+### Option 1: Packaged Windows executable
+
+This is the easiest path for non-technical users once release assets are published.
+
+Current alpha packaging notes:
+- package format: Windows `.exe` bundle in a zip archive
+- runtime model: framework-dependent for now
+- extra prerequisite: .NET 10 Desktop Runtime on Windows
+
+Install steps:
+1. Download the latest Windows release package from [Releases](https://github.com/furniox-labs/FurniOxSolidWorks-MCP/releases).
+2. Extract the archive to a local folder.
+3. Keep `FurniOx.SolidWorks.MCP.exe`, `appsettings.json`, and `appsettings.local.example.json` together.
+4. Copy `.mcp.exe.example.json` into your MCP client configuration and replace `<ABSOLUTE_PATH_TO_EXE>` with the extracted executable path.
+
+To build the packaged Windows release yourself:
+
+```powershell
+pwsh ./scripts/publish-public-release.ps1
+```
+
+The script builds the public solution in `Release`, collects the MCP executable output, and creates a zip archive under `out/releases/`.
+
+### Option 2: Build from source
+
+Use this path if you want to inspect or modify the codebase.
+
+#### Requirements
 
 - Windows 10/11
 - .NET SDK `10.0.100` or a compatible minor roll-forward
 - SolidWorks installed for real server usage and manual integration testing
 
-## Build
+#### Build
 
 ```powershell
 dotnet restore
 dotnet build FurniOxSolidWorks-MCP.sln
 ```
 
-## Test
+#### MCP client setup from source
+
+An MCP client configuration example is provided in `.mcp.example.json`. Replace `<ABSOLUTE_PATH_TO_REPO>` with your local checkout path.
+
+## Testing
 
 Unit and wrapper tests run without SolidWorks. COM-backed integration tests are opt-in and only execute when `SOLIDWORKS_INTEGRATION_TESTS=1`.
 
@@ -63,15 +103,13 @@ To verify the public boundary:
 pwsh ./scripts/check-public-boundary.ps1
 ```
 
-## Run
+## Run From Source
 
 ```powershell
 dotnet run --project src/FurniOx.SolidWorks.MCP
 ```
 
 The server uses stdio transport and is intended to be launched by an MCP client.
-
-An MCP client configuration example is provided in `.mcp.example.json`. Replace `<ABSOLUTE_PATH_TO_REPO>` with your local checkout path.
 
 ## Configuration
 

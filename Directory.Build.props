@@ -4,16 +4,17 @@
     <Product>FurniOx SolidWorks MCP Server</Product>
     <Company>FurniOx</Company>
     <Authors>FurniOx</Authors>
-    <Copyright>Copyright © FurniOx 2025</Copyright>
+    <Copyright>Copyright (c) FurniOx 2026</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/furniox-labs/FurniOxSolidWorks-MCP</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/furniox-labs/FurniOxSolidWorks-MCP</PackageProjectUrl>
 
     <!-- Version Information -->
-    <Version>0.0.3</Version>
-    <AssemblyVersion>0.0.3.0</AssemblyVersion>
-    <FileVersion>0.0.3.0</FileVersion>
+    <Version>0.1.0-alpha.1</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
 
     <!-- Language Configuration -->
     <LangVersion>12</LangVersion>

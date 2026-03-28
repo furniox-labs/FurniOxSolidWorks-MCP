@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "furniox_solidworks": {
+      "type": "stdio",
+      "command": "<ABSOLUTE_PATH_TO_EXE>\\FurniOx.SolidWorks.MCP.exe",
+      "env": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

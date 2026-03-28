@@ -26,13 +26,22 @@ public sealed class FeatureCutExtrusionOperations : OperationHandlerBase
         CancellationToken cancellationToken)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var modelExt = model.Extension;
-        if (modelExt == null) return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        if (modelExt == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        }
 
         var depth = GetDoubleParam(parameters, "Depth", 10.0);
         var reverseDirection = GetBoolParam(parameters, "ReverseDirection", false);
@@ -79,12 +88,12 @@ public sealed class FeatureCutExtrusionOperations : OperationHandlerBase
 
         if (useDraft1 && (draftAngle1 < 0 || draftAngle1 > 30))
         {
-            return Task.FromResult(ExecutionResult.Failure("Draft angle 1 must be between 0° and 30°"));
+            return Task.FromResult(ExecutionResult.Failure("Draft angle 1 must be between 0Â° and 30Â°"));
         }
 
         if (useDraft2 && (draftAngle2 < 0 || draftAngle2 > 30))
         {
-            return Task.FromResult(ExecutionResult.Failure("Draft angle 2 must be between 0° and 30°"));
+            return Task.FromResult(ExecutionResult.Failure("Draft angle 2 must be between 0Â° and 30Â°"));
         }
 
         if ((endCondition1 == (int)swEndConditions_e.swEndCondUpToSurface ||

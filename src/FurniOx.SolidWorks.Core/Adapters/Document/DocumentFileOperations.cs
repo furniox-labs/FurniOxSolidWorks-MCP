@@ -40,7 +40,10 @@ public sealed class DocumentFileOperations : OperationHandlerBase
     private Task<ExecutionResult> CreateDocumentAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var docType = GetIntParam(parameters, "Type", (int)swDocumentTypes_e.swDocPART);
         if (docType < 1 || docType > 3)
@@ -74,7 +77,10 @@ public sealed class DocumentFileOperations : OperationHandlerBase
     private Task<ExecutionResult> OpenModelAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         if (!parameters.TryGetValue("Path", out var pathObj) || pathObj is not string path)
         {
@@ -82,7 +88,9 @@ public sealed class DocumentFileOperations : OperationHandlerBase
         }
 
         if (!IsPathSafe(path, out var openPathError))
+        {
             return Task.FromResult(ExecutionResult.Failure($"Invalid path: {openPathError}"));
+        }
 
         var docType = GetIntParam(parameters, "Type", (int)swDocumentTypes_e.swDocPART);
         if (docType < 1 || docType > 3)
@@ -135,10 +143,16 @@ public sealed class DocumentFileOperations : OperationHandlerBase
     private Task<ExecutionResult> SaveModelAsync(IDictionary<string, object?> parameters)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var extension = model.Extension;
         var hasRenamedDocs = extension.HasRenamedDocuments();
@@ -147,7 +161,9 @@ public sealed class DocumentFileOperations : OperationHandlerBase
         if (parameters.TryGetValue("Path", out var pathObj) && pathObj is string path)
         {
             if (!IsPathSafe(path, out var savePathError))
+            {
                 return Task.FromResult(ExecutionResult.Failure($"Invalid save path: {savePathError}"));
+            }
 
             int errors = 0;
             int warnings = 0;

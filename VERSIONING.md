@@ -1,121 +1,79 @@
 # Versioning Strategy
 
-This project follows **Semantic Versioning** with specific pre-release phase definitions.
+This project uses Semantic Versioning with prerelease tags.
 
 ## Version Format
 
-`MAJOR.MINOR.PATCH[-PRERELEASE]`
+`MAJOR.MINOR.PATCH[-PRERELEASE.NUMBER]`
 
-## Development Phases
+Examples:
+- `0.1.0-alpha.1`
+- `0.1.0-alpha.2`
+- `0.1.0-beta.1`
+- `0.1.0-rc.1`
+- `0.1.0`
 
-### Alpha Phase (0.0.x)
-- **Version Range**: `0.0.1` to `0.0.99`
-- **Purpose**: Initial development, experimental features, API design
-- **Stability**: Unstable, breaking changes expected
-- **Testing**: Internal testing only
-- **Increment**: Bump PATCH version for each alpha release
+## Release Stages
 
-**Example progression:**
-```
-0.0.1 → 0.0.2 → 0.0.3 → ... → 0.0.99
-```
+### Alpha
+- Format: `0.x.y-alpha.n`
+- Meaning: working release, still under active validation
+- Expectation: core workflows should work, but broader SolidWorks environment testing is still needed
+- Allowed changes: breaking changes are acceptable between alpha releases
 
-### Beta Phase (0.x.0)
-- **Version Range**: `0.1.0` to `0.99.0`
-- **Purpose**: Feature complete for testing, API stabilization
-- **Stability**: Mostly stable, minor breaking changes possible
-- **Testing**: External beta testing, community feedback
-- **Increment**: Bump MINOR version for each beta release
+### Beta
+- Format: `0.x.y-beta.n`
+- Meaning: feature scope is mostly settled and external testing should expand
+- Expectation: fewer breaking changes, stronger compatibility expectations
 
-**Example progression:**
-```
-0.1.0 → 0.2.0 → 0.3.0 → ... → 0.99.0
-```
+### Release Candidate
+- Format: `0.x.y-rc.n`
+- Meaning: release candidate for stable launch
+- Expectation: no intentional breaking changes without strong reason
 
-**Beta patches:**
-```
-0.1.0 → 0.1.1 (bugfix) → 0.1.2 (bugfix) → 0.2.0 (next beta)
-```
+### Stable
+- Format: `1.x.y`
+- Meaning: supported stable release
+- Expectation: standard Semantic Versioning rules apply
 
-### Production Phase (1.0.0+)
-- **Version Range**: `1.0.0` and above
-- **Purpose**: Production-ready, stable releases
-- **Stability**: Stable, follows strict semantic versioning
-- **Testing**: Full QA, production testing
+## How Versions Move
 
-**Semantic Versioning Rules:**
-- **MAJOR**: Increment for incompatible API changes
-- **MINOR**: Increment for backwards-compatible functionality additions
-- **PATCH**: Increment for backwards-compatible bug fixes
+- Increase `MAJOR` for incompatible public contract changes after `1.0.0`
+- Increase `MINOR` for backward-compatible capability additions
+- Increase `PATCH` for backward-compatible fixes
+- Increase prerelease number for the next alpha, beta, or rc cut
 
-**Example progression:**
-```
-1.0.0 → 1.0.1 (bugfix) → 1.1.0 (new feature) → 2.0.0 (breaking change)
+Typical path:
+
+```text
+0.1.0-alpha.1 -> 0.1.0-alpha.2 -> 0.1.0-beta.1 -> 0.1.0-rc.1 -> 0.1.0
 ```
 
-## Version Lifecycle
+## Current Release Policy
 
-```
-Development → Alpha → Beta → Release Candidate → Production
-  (main)      (0.0.x)  (0.x.0)      (x.y.z-rc.n)      (1.0.0+)
-```
+The public repo is currently in alpha.
 
-## Release Criteria
-
-### Alpha → Beta (0.0.x → 0.1.0)
-- Core architecture implemented
-- Basic functionality working
-- Ready for external testing
-
-### Beta → Production (0.x.0 → 1.0.0)
-- All planned features implemented
-- API stable and documented
-- Comprehensive test coverage
-- No critical bugs
-- Documentation complete
-
-## Branching Strategy
-
-### Main Branches
-- `main` - Production-ready code (1.0.0+)
-- `develop` - Integration branch for next release
-- `alpha` - Alpha development (0.0.x)
-- `beta` - Beta testing (0.x.0)
-
-### Supporting Branches
-- `feature/*` - New features
-- `bugfix/*` - Bug fixes
-- `hotfix/*` - Production hotfixes
-- `release/*` - Release preparation
+- Current version: `0.1.0-alpha.1`
+- Status: working public/basic MCP
+- Validation note: more testing is needed across SolidWorks installs, templates, and real-world assemblies
 
 ## Tagging Convention
 
-All releases must be tagged:
+All releases are tagged:
 
 ```bash
-# Alpha releases
-git tag -a v0.0.1 -m "Alpha release 0.0.1 - Initial MCP server structure"
-
-# Beta releases
-git tag -a v0.1.0 -m "Beta release 0.1.0 - Feature complete for testing"
-
-# Production releases
-git tag -a v1.0.0 -m "Production release 1.0.0 - First stable release"
+git tag -a v0.1.0-alpha.1 -m "Alpha release 0.1.0-alpha.1"
+git tag -a v0.1.0-beta.1 -m "Beta release 0.1.0-beta.1"
+git tag -a v0.1.0 -m "Stable release 0.1.0"
 ```
 
-## Changelog
+## Changelog Policy
 
-Maintain a [CHANGELOG.md](CHANGELOG.md) following [Keep a Changelog](https://keepachangelog.com/) format:
+Maintain [CHANGELOG.md](CHANGELOG.md) in Keep a Changelog style:
 
-- **Added** - New features
-- **Changed** - Changes in existing functionality
-- **Deprecated** - Soon-to-be removed features
-- **Removed** - Removed features
-- **Fixed** - Bug fixes
-- **Security** - Security fixes
-
-## Current Version
-
-**Version**: `0.0.1`
-**Phase**: Alpha
-**Status**: Initial development
+- `Added`
+- `Changed`
+- `Deprecated`
+- `Removed`
+- `Fixed`
+- `Security`

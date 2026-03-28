@@ -25,13 +25,22 @@ public sealed class FeatureShellOperations : OperationHandlerBase
         CancellationToken cancellationToken)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var modelExt = model.Extension;
-        if (modelExt == null) return Task.FromResult(ExecutionResult.Failure("No model extension"));
+        if (modelExt == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No model extension"));
+        }
 
         var thickness = GetDoubleParam(parameters, "Thickness", 3.0);
         var direction = GetIntParam(parameters, "Direction", 0);

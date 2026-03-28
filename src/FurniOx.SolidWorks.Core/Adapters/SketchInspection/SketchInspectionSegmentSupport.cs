@@ -8,25 +8,61 @@ internal static class SketchInspectionSegmentSupport
 {
     internal static string GetSegmentTypeName(SwSketchSegment segment)
     {
-        if (segment is ISketchLine) return "Line";
+        if (segment is ISketchLine)
+        {
+            return "Line";
+        }
+
         if (segment is ISketchArc arc)
         {
             return IsFullCircleSegment(segment, arc) ? "Circle" : "Arc";
         }
 
-        if (segment is ISketchEllipse) return "Ellipse";
-        if (segment is ISketchSpline) return "Spline";
-        if (segment is ISketchPoint) return "Point";
+        if (segment is ISketchEllipse)
+        {
+            return "Ellipse";
+        }
+
+        if (segment is ISketchSpline)
+        {
+            return "Spline";
+        }
+
+        if (segment is ISketchPoint)
+        {
+            return "Point";
+        }
+
         return "SketchSegment";
     }
 
     internal static int GetSegmentTypeCode(SwSketchSegment segment)
     {
-        if (segment is ISketchLine) return 0;
-        if (segment is ISketchArc) return 1;
-        if (segment is ISketchEllipse) return 2;
-        if (segment is ISketchSpline) return 3;
-        if (segment is ISketchPoint) return 4;
+        if (segment is ISketchLine)
+        {
+            return 0;
+        }
+
+        if (segment is ISketchArc)
+        {
+            return 1;
+        }
+
+        if (segment is ISketchEllipse)
+        {
+            return 2;
+        }
+
+        if (segment is ISketchSpline)
+        {
+            return 3;
+        }
+
+        if (segment is ISketchPoint)
+        {
+            return 4;
+        }
+
         return -1;
     }
 
@@ -47,13 +83,22 @@ internal static class SketchInspectionSegmentSupport
         try
         {
             var radius = arc.GetRadius();
-            if (radius <= 0) return false;
+            if (radius <= 0)
+            {
+                return false;
+            }
 
             var length = segment.GetLength();
-            if (length <= 0) return false;
+            if (length <= 0)
+            {
+                return false;
+            }
 
             var fullCircleLength = 2 * Math.PI * radius;
-            if (fullCircleLength <= 0) return false;
+            if (fullCircleLength <= 0)
+            {
+                return false;
+            }
 
             var ratio = length / fullCircleLength;
             return ratio >= 0.98;

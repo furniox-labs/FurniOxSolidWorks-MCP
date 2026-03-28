@@ -92,7 +92,11 @@ public sealed class StaTaskRunner : IStaTaskRunner
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         _queue.CompleteAdding();

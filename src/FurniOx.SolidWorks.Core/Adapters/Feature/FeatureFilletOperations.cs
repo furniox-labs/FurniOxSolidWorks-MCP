@@ -25,13 +25,22 @@ public sealed class FeatureFilletOperations : OperationHandlerBase
         CancellationToken cancellationToken)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var modelExt = model.Extension;
-        if (modelExt == null) return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        if (modelExt == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        }
 
         var radius = GetDoubleParam(parameters, "Radius", 2.0);
         var filletType = GetIntParam(parameters, "Type", 0);

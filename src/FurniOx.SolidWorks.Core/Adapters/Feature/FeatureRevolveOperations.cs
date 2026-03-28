@@ -26,13 +26,22 @@ public sealed class FeatureRevolveOperations : OperationHandlerBase
         CancellationToken cancellationToken)
     {
         var app = _connection.Application;
-        if (app == null) return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
 
         var model = (ModelDoc2?)app.ActiveDoc;
-        if (model == null) return Task.FromResult(ExecutionResult.Failure("No active document"));
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
 
         var modelExt = model.Extension;
-        if (modelExt == null) return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        if (modelExt == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        }
 
         var axisEntity = GetStringParam(parameters, "AxisEntity", "");
         var axisEntityType = GetStringParam(parameters, "AxisEntityType", "AXIS");
@@ -66,22 +75,22 @@ public sealed class FeatureRevolveOperations : OperationHandlerBase
 
         if (angle1 < 0 || angle1 > 360)
         {
-            return Task.FromResult(ExecutionResult.Failure("Angle1 must be between 0° and 360° (use ReverseDirection instead of negative angles)"));
+            return Task.FromResult(ExecutionResult.Failure("Angle1 must be between 0Â° and 360Â° (use ReverseDirection instead of negative angles)"));
         }
 
         if (!singleDirection && (angle2 < 0 || angle2 > 360))
         {
-            return Task.FromResult(ExecutionResult.Failure("Angle2 must be between 0° and 360°"));
+            return Task.FromResult(ExecutionResult.Failure("Angle2 must be between 0Â° and 360Â°"));
         }
 
         if (endCondition1 == (int)swEndConditions_e.swEndCondBlind && angle1 <= 0)
         {
-            return Task.FromResult(ExecutionResult.Failure("Angle1 must be greater than 0° for Blind end condition"));
+            return Task.FromResult(ExecutionResult.Failure("Angle1 must be greater than 0Â° for Blind end condition"));
         }
 
         if (!singleDirection && endCondition2 == (int)swEndConditions_e.swEndCondBlind && angle2 <= 0)
         {
-            return Task.FromResult(ExecutionResult.Failure("Angle2 must be greater than 0° for Blind end condition in direction 2"));
+            return Task.FromResult(ExecutionResult.Failure("Angle2 must be greater than 0Â° for Blind end condition in direction 2"));
         }
 
         if ((endCondition1 == (int)swEndConditions_e.swEndCondUpToSurface ||

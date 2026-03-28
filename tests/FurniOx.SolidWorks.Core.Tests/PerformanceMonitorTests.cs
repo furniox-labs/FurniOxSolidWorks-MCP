@@ -348,7 +348,9 @@ public class PerformanceMonitorTests
         Parallel.ForEach(operations, op =>
         {
             for (int i = 0; i < callsPerOperation; i++)
+            {
                 monitor.RecordExecution(op, TimeSpan.FromMilliseconds(1), success: true);
+            }
         });
 
         IReadOnlyCollection<ExecutionMetric> metrics = monitor.Snapshot();

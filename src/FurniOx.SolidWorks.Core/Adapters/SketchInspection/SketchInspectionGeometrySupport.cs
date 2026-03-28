@@ -254,8 +254,15 @@ internal static class SketchInspectionGeometrySupport
         var angle2 = Math.Atan2(v2y, v2x);
         var sweep = angle2 - angle1;
 
-        if (sweep > Math.PI) sweep -= 2 * Math.PI;
-        if (sweep < -Math.PI) sweep += 2 * Math.PI;
+        if (sweep > Math.PI)
+        {
+            sweep -= 2 * Math.PI;
+        }
+
+        if (sweep < -Math.PI)
+        {
+            sweep += 2 * Math.PI;
+        }
 
         return sweep;
     }
