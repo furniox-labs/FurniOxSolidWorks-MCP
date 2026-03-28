@@ -1,0 +1,81 @@
+<Project>
+  <PropertyGroup>
+    <!-- Project Metadata -->
+    <Product>FurniOx SolidWorks MCP Server</Product>
+    <Company>FurniOx</Company>
+    <Authors>FurniOx</Authors>
+    <Copyright>Copyright © FurniOx 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/furniox-labs/FurniOxSolidWorks-MCP</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/furniox-labs/FurniOxSolidWorks-MCP</PackageProjectUrl>
+
+    <!-- Version Information -->
+    <Version>0.0.3</Version>
+    <AssemblyVersion>0.0.3.0</AssemblyVersion>
+    <FileVersion>0.0.3.0</FileVersion>
+
+    <!-- Language Configuration -->
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Code Quality -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisMode>Default</AnalysisMode>
+
+    <!-- Build Configuration -->
+    <Deterministic>true</Deterministic>
+    <Features>strict</Features>
+
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress missing XML comment warnings -->
+
+    <!-- NuGet -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <!-- Public Build Configurations (open-source subset) -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>$(DefineConstants);RELEASE;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Private Build Configurations (full features: bridge, analysis, batch, doc manager) -->
+  <PropertyGroup Condition="'$(Configuration)' == 'PrivateDebug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE;PRIVATE_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'PrivateRelease'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>$(DefineConstants);RELEASE;TRACE;PRIVATE_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Source Link for debugging -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableComHosting>true</EnableComHosting>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Core" />
+  </ItemGroup>
+
+  <ItemGroup Label="SolidWorks COM Interop">
+    <Reference Include="SolidWorks.Interop.sldworks">
+      <HintPath>C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\SolidWorks.Interop.sldworks.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="SolidWorks.Interop.swconst">
+      <HintPath>C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\SolidWorks.Interop.swconst.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="SolidWorks.Interop.swpublished">
+      <HintPath>C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\SolidWorks.Interop.swpublished.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FurniOx.SolidWorks.Shared\FurniOx.SolidWorks.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>FurniOx.SolidWorks.Core.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <!-- Always exclude legacy code -->
+  <ItemGroup>
+    <Compile Remove="Adapters_Legacy\**" />
+    <EmbeddedResource Remove="Adapters_Legacy\**" />
+    <None Remove="Adapters_Legacy\**" />
+  </ItemGroup>
+
+  <!-- Files owned by Core.Private — always excluded from Core.
+       Core.Private extends Core with analysis, batch, custom property, bridge, and rename operations.
+       This is the separate-projects pattern: private features never compile in the public project. -->
+  <ItemGroup>
+    <Compile Remove="Bridge\**" />
+    <Compile Remove="DocManager\**" />
+    <Compile Remove="Adapters\Analysis\**" />
+    <Compile Remove="Adapters\AnalysisOperations.cs" />
+    <Compile Remove="Adapters\BatchCustomProperty*.cs" />
+    <Compile Remove="Adapters\CustomProperty*.cs" />
+    <Compile Remove="Adapters\SummaryInfoOperations.cs" />
+    <Compile Remove="Adapters\TargetDocumentResolutionSupport.cs" />
+    <Compile Remove="Adapters\Document\*Rename*.cs" />
+    <Compile Remove="Operations\AnalysisOperationNames.cs" />
+    <Compile Remove="Operations\CustomPropertyOperationNames.cs" />
+    <Compile Remove="Operations\SummaryInfoOperationNames.cs" />
+  </ItemGroup>
+
+</Project>

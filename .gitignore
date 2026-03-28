@@ -1,0 +1,232 @@
+# C/C++ Build Artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# Compiled Object files
+*.slo
+*.lo
+*.ko
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Static Libraries
+*.lai
+*.la
+
+# Executables
+*.i*86
+*.x86_64
+*.hex
+
+# Build directories
+build/
+bin/
+obj/
+out/
+dist/
+target/
+Debug/
+Release/
+x64/
+x86/
+.vs/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+*.cmake
+!CMakeLists.txt
+
+# Make
+*.d
+*.mk
+Makefile
+!Makefile.*
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Valgrind
+*.log
+*.memcheck
+*.callgrind
+*.cachegrind
+*.massif
+
+# GDB
+.gdb_history
+
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+coverage/
+*.coverage
+htmlcov/
+
+# Profiling
+*.prof
+gmon.out
+perf.data
+perf.data.old
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# IDE - CLion / JetBrains
+.idea/
+cmake-build-*/
+*.iml
+*.iws
+
+# IDE - Eclipse
+.cproject
+.project
+.settings/
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+.*.sw?
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Package managers
+node_modules/
+.npm/
+package-lock.json
+
+# Documentation generated
+docs/generated/
+docs/html/
+docs/latex/
+Doxyfile.bak
+
+# Test artifacts
+test-results/
+*.test
+tests/output/
+*.tap
+
+# Dependencies
+deps/
+vendor/
+third_party/
+!third_party/.gitkeep
+
+# Reference/Upstream repositories
+# Full repository clones for reference during C implementation
+# These are NOT dependencies or submodules
+reference/*/
+!reference/README.md
+!reference/.gitkeep
+!reference/**/NOTES.md
+
+# Build artifacts from reference code
+reference/**/node_modules/
+reference/**/build/
+reference/**/bin/
+reference/**/obj/
+reference/**/*.log
+
+# Local configuration
+*.local
+.env
+.env.local
+config.local.json
+secrets.json
+src/FurniOx.SolidWorks.MCP/appsettings.local.json
+src/FurniOx.SolidWorks.MCP.Private/appsettings.private.local.json
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+
+# Patches
+*.patch
+*.diff
+
+# Editor backup
+*.kate-swp
+.*.kate-swp
+
+# Clang tools
+.clang-format
+.clang-tidy
+.clangd/
+
+# sanitizers
+*.asan
+*.msan
+*.tsan
+*.ubsan
+
+# Custom
+mcp-server
+
+# Windows special device file
+nul

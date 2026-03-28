@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FurniOx.SolidWorks.Core\FurniOx.SolidWorks.Core.csproj" />
+    <ProjectReference Include="..\..\src\FurniOx.SolidWorks.Shared\FurniOx.SolidWorks.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SolidWorks.Interop.swconst">
+      <HintPath>C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\SolidWorks.Interop.swconst.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="AnalysisOperationsTests.cs" />
+    <Compile Remove="BatchCustomPropertySupportTests.cs" />
+    <Compile Remove="BridgeSettingsTests.cs" />
+    <Compile Remove="CustomPropertySupportTests.cs" />
+    <Compile Remove="SummaryInfoOperationsTests.cs" />
+  </ItemGroup>
+
+</Project>

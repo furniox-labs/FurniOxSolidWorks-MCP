@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "furniox_solidworks": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "<ABSOLUTE_PATH_TO_REPO>\\src\\FurniOx.SolidWorks.MCP\\FurniOx.SolidWorks.MCP.csproj"
+      ],
+      "env": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- Private-only models: always excluded from Shared.
+       These types are compiled directly by Core.Private which has its own reference to these files
+       or defines equivalent types. Public build never sees them. -->
+  <ItemGroup>
+    <Compile Remove="Models\AssemblyAnalysisResult.cs" />
+    <Compile Remove="Models\BatchAnalysisModels.cs" />
+    <Compile Remove="Models\ComponentDocumentProperties.cs" />
+    <Compile Remove="Models\DocumentSummaryInfo.cs" />
+    <Compile Remove="Models\DrawingAnalysisResult.cs" />
+    <Compile Remove="Models\PartAnalysisResult.cs" />
+  </ItemGroup>
+
+</Project>
