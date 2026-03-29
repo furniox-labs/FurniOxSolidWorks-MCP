@@ -18,6 +18,7 @@ public static class DocumentOperationNames
     public const string GetDocumentInfo = "Document.GetDocumentInfo";
     public const string GetAllOpenDocuments = "Document.GetAllOpenDocuments";
     public const string GetDocumentCount = "Document.GetDocumentCount";
+    public const string SetPropertyTemplate = "Document.SetPropertyTemplate";
 
     public static readonly IReadOnlyList<string> File =
     [
@@ -34,7 +35,8 @@ public static class DocumentOperationNames
         CloseAllDocuments,
         EditUndo,
         EditRedo,
-        HideDocument
+        HideDocument,
+        SetPropertyTemplate
     ];
 
     public static readonly IReadOnlyList<string> Query =

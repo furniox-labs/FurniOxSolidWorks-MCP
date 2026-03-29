@@ -37,6 +37,7 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
             var op when op == DocumentOperationNames.EditUndo => EditUndoAsync(parameters),
             var op when op == DocumentOperationNames.EditRedo => EditRedoAsync(parameters),
             var op when op == DocumentOperationNames.HideDocument => HideDocumentAsync(parameters),
+            var op when op == DocumentOperationNames.SetPropertyTemplate => SetPropertyTemplateAsync(parameters),
             _ => Task.FromResult(ExecutionResult.Failure($"Unknown document session operation: {operation}"))
         };
     }
@@ -272,6 +273,61 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
             Note = isNowHidden
                 ? "Document window closed but document remains loaded in memory. UI resources are NOT released - close document when done."
                 : "Failed to hide document"
+        }));
+    }
+
+    private Task<ExecutionResult> SetPropertyTemplateAsync(IDictionary<string, object?> parameters)
+    {
+        var app = _connection.Application;
+        if (app == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
+        }
+
+        var model = (ModelDoc2?)app.ActiveDoc;
+        if (model == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("No active document"));
+        }
+
+        var templatePath = GetStringParam(parameters, "TemplatePath");
+        if (string.IsNullOrWhiteSpace(templatePath))
+        {
+            return Task.FromResult(ExecutionResult.Failure("TemplatePath is required"));
+        }
+
+        if (!System.IO.File.Exists(templatePath))
+        {
+            return Task.FromResult(ExecutionResult.Failure($"Template file not found: {templatePath}"));
+        }
+
+        var isWeldment = GetBoolParam(parameters, "IsWeldment", false);
+
+        var ext = model.Extension;
+        if (ext == null)
+        {
+            return Task.FromResult(ExecutionResult.Failure("Failed to get model extension"));
+        }
+
+        ext.CustomPropertyBuilderTemplate[isWeldment] = templatePath;
+
+        var docTitle = model.GetTitle();
+        var docType = model.GetType();
+        var docTypeName = docType switch
+        {
+            1 => "Part",
+            2 => "Assembly",
+            3 => "Drawing",
+            _ => "Unknown"
+        };
+
+        return Task.FromResult(ExecutionResult.SuccessResult(new
+        {
+            Set = true,
+            TemplatePath = templatePath,
+            IsWeldment = isWeldment,
+            DocumentTitle = docTitle,
+            DocumentType = docTypeName
         }));
     }
 }

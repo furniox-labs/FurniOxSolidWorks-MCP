@@ -147,4 +147,17 @@ public sealed class DocumentTools : ToolsBase
         };
         return await ExecuteToolAsync("Document.HideDocument", parameters);
     }
+
+    [McpServerTool, Description("Set the custom property template (.prtprp/.asmprp/.drwprp) for the active document. This controls which Property Tab Builder form SolidWorks shows. It selects the template SolidWorks uses for the document but does not itself write custom properties.")]
+    public async Task<object?> SetDocumentPropertyTemplate(
+        [Description("Full path to template file (.prtprp, .asmprp, or .drwprp)")] string templatePath,
+        [Description("True for weldment templates, false for standard")] bool isWeldment = false)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            ["TemplatePath"] = templatePath,
+            ["IsWeldment"] = isWeldment
+        };
+        return await ExecuteToolAsync("Document.SetPropertyTemplate", parameters);
+    }
 }
