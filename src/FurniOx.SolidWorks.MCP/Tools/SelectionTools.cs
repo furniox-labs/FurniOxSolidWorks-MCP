@@ -64,7 +64,7 @@ public sealed class SelectionTools : ToolsBase
             new Dictionary<string, object?>());
     }
 
-    [McpServerTool, Description("[DESTRUCTIVE] Delete selected entities")]
+    [McpServerTool, Description("[DESTRUCTIVE] Delete selected entities. Required: prior selection via select_component/select_by_id2 or an existing SolidWorks UI selection.")]
     public async Task<object?> DeleteSelection2(
         [Description("Delete options (1-3)")] int options = 1)
     {

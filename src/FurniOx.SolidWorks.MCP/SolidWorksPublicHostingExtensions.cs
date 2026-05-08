@@ -98,9 +98,14 @@ public static class SolidWorksPublicHostingExtensions
         return services
             .AddMcpServer()
             .WithStdioServerTransport()
+            .WithTools<AnalysisTools>()
             .WithTools<AssemblyBrowserTools>()
             .WithTools<ConfigurationTools>()
+            .WithTools<CrossReferenceTools>()
+            .WithTools<CustomPropertyTools>()
+            .WithTools<DocumentGovernanceTools>()
             .WithTools<DocumentTools>()
+            .WithTools<EquationReferenceTools>()
             .WithTools<ExportTools>()
             .WithTools<FeatureExtrusionTools>()
             .WithTools<FeatureFilletTools>()
@@ -112,6 +117,7 @@ public static class SolidWorksPublicHostingExtensions
             .WithTools<SketchParametricTools>()
             .WithTools<SketchSpecializedTools>()
             .WithTools<SortingTools>()
+            .WithTools<SummaryInfoTools>()
             .WithResourcesFromAssembly(typeof(SolidWorksResources).Assembly);
     }
 

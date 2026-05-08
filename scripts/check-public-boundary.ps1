@@ -73,29 +73,32 @@ $bannedPatterns = @(
     "tests/FurniOx.SolidWorks.Core.Private.Tests*",
     "tests/FurniOx.SolidWorks.MCP.Private.Tests*",
     "FurniOxSolidWorks-MCP.Private.sln",
-    "src/FurniOx.SolidWorks.Shared/Models/AssemblyAnalysisResult.cs",
-    "src/FurniOx.SolidWorks.Shared/Models/BatchAnalysisModels.cs",
-    "src/FurniOx.SolidWorks.Shared/Models/ComponentDocumentProperties.cs",
-    "src/FurniOx.SolidWorks.Shared/Models/DocumentSummaryInfo.cs",
-    "src/FurniOx.SolidWorks.Shared/Models/DrawingAnalysisResult.cs",
-    "src/FurniOx.SolidWorks.Shared/Models/PartAnalysisResult.cs",
     "src/FurniOx.SolidWorks.Core/Bridge*",
-    "src/FurniOx.SolidWorks.Core/DocManager*",
-    "src/FurniOx.SolidWorks.Core/Adapters/Analysis*",
+    "src/FurniOx.SolidWorks.Core/DocManager/DocManagerPropertyReader.cs",
+    "src/FurniOx.SolidWorks.Core/DocManager/CompositePropertyReader.cs",
+    "src/FurniOx.SolidWorks.Core/DocManager/FallbackPropertyReader.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Analysis/BatchAnalysisOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Analysis/PartBatchAnalysisOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Analysis/AssemblyBatchAnalysisOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/AddinOperations.cs",
     "src/FurniOx.SolidWorks.Core/Adapters/BatchCustomProperty*.cs",
-    "src/FurniOx.SolidWorks.Core/Adapters/CustomProperty*.cs",
-    "src/FurniOx.SolidWorks.Core/Adapters/SummaryInfoOperations.cs",
-    "src/FurniOx.SolidWorks.Core/Adapters/TargetDocumentResolutionSupport.cs",
-    "src/FurniOx.SolidWorks.Core/Adapters/Document/*Rename*.cs",
-    "src/FurniOx.SolidWorks.Core/Operations/AnalysisOperationNames.cs",
-    "src/FurniOx.SolidWorks.Core/Operations/CustomPropertyOperationNames.cs",
-    "src/FurniOx.SolidWorks.Core/Operations/SummaryInfoOperationNames.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Document/DocumentRenameBatchOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Document/DocumentSuppressionBatchOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Adapters/Document/DocumentReferenceReplacementBatchOperations.cs",
+    "src/FurniOx.SolidWorks.Core/Operations/AddinOperationNames.cs",
+    "src/FurniOx.SolidWorks.Core/Operations/AnalysisBatchOperationNames.cs",
+    "src/FurniOx.SolidWorks.Core/Operations/CustomPropertyBatchOperationNames.cs",
     "src/FurniOx.SolidWorks.MCP/BridgeBootstrapService.cs",
-    "src/FurniOx.SolidWorks.MCP/Tools/AnalysisTools.cs",
+    "src/FurniOx.SolidWorks.MCP/Tools/Batch*Tools.cs",
     "src/FurniOx.SolidWorks.MCP/Tools/BatchAnalysisTools.cs",
     "src/FurniOx.SolidWorks.MCP/Tools/BatchCustomPropertyTools.cs",
-    "src/FurniOx.SolidWorks.MCP/Tools/CustomPropertyTools.cs",
-    "src/FurniOx.SolidWorks.MCP/Tools/SummaryInfoTools.cs"
+    "src/FurniOx.SolidWorks.MCP/Tools/Bridge*Tools.cs",
+    "src/FurniOx.SolidWorks.MCP/Tools/DiagnosticTools.cs",
+    "src/FurniOx.SolidWorks.MCP/Tools/*Addin*Tools.cs",
+    "src/FurniOx.SolidWorks.MCP/Tools/FurniOxAddinTools.cs",
+    "src/FurniOx.SolidWorks.MCP/Tools/Swood*Tools.cs",
+    "tests/FurniOx.SolidWorks.Core.Tests/BridgeProtocol*",
+    "tests/FurniOx.SolidWorks.Integration.Tests/BridgeParity*"
 )
 
 $items = Get-ChildItem -LiteralPath $resolvedRoot -Recurse -Force | Sort-Object FullName
@@ -112,15 +115,11 @@ foreach ($item in $items) {
 $publicProjectChecks = @(
     @{
         Path = "src/FurniOx.SolidWorks.Core/FurniOx.SolidWorks.Core.csproj"
-        Forbidden = @("FurniOx.SolidWorks.Bridge.Protocol", "FurniOx.SolidWorks.Core.Private", "AnalysisOperationNames.cs", "CustomPropertyOperationNames.cs", "SummaryInfoOperationNames.cs")
+        Forbidden = @("FurniOx.SolidWorks.Bridge.Protocol", "FurniOx.SolidWorks.Core.Private", "AddinOperationNames.cs", "AnalysisBatchOperationNames.cs", "CustomPropertyBatchOperationNames.cs", "AddinOperations.cs", "BatchAnalysisOperations.cs", "PartBatchAnalysisOperations.cs", "AssemblyBatchAnalysisOperations.cs", "DocManagerPropertyReader.cs", "CompositePropertyReader.cs", "FallbackPropertyReader.cs", "DocumentRenameBatchOperations.cs", "DocumentSuppressionBatchOperations.cs", "DocumentReferenceReplacementBatchOperations.cs")
     },
     @{
         Path = "src/FurniOx.SolidWorks.MCP/FurniOx.SolidWorks.MCP.csproj"
-        Forbidden = @("BridgeBootstrapService.cs", "AnalysisTools.cs", "BatchAnalysisTools.cs", "BatchCustomPropertyTools.cs", "CustomPropertyTools.cs", "SummaryInfoTools.cs", "FurniOx.SolidWorks.MCP.Private")
-    },
-    @{
-        Path = "src/FurniOx.SolidWorks.Shared/FurniOx.SolidWorks.Shared.csproj"
-        Forbidden = @("AssemblyAnalysisResult.cs", "BatchAnalysisModels.cs", "DocumentSummaryInfo.cs", "DrawingAnalysisResult.cs", "PartAnalysisResult.cs")
+        Forbidden = @("BridgeBootstrapService.cs", "BatchAnalysisTools.cs", "BatchCustomPropertyTools.cs", "FurniOxAddinTools.cs", "FurniOx.SolidWorks.MCP.Private")
     }
 )
 

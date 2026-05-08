@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="BridgeProtocol\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="SolidWorks.Interop.swconst">
       <HintPath>C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist\SolidWorks.Interop.swconst.dll</HintPath>
       <Private>true</Private>

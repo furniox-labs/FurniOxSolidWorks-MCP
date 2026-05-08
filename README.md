@@ -1,13 +1,13 @@
 # FurniOx SolidWorks MCP
 
-Public/basic SolidWorks MCP server for day-to-day CAD editing and file operations over native COM.
+Public SolidWorks MCP server for day-to-day CAD editing, model inspection, metadata work, and file operations over native COM.
 
 ## Status
 
-- Current release: `0.1.0-alpha.2`
+- Current release: `0.1.0-alpha.3`
 - Release stage: alpha
-- Current state: working for the public/basic workflow set
-- Validation note: the current public toolset has been exercised in real SolidWorks usage and is working for the intended public/basic scope; broader testing is still needed across additional SolidWorks versions, template configurations, and larger production assemblies
+- Current state: working for the public single-document workflow set
+- Validation note: the current public toolset has automated coverage and has been exercised in real SolidWorks usage; broader testing is still needed across additional SolidWorks versions, template configurations, and larger production assemblies
 
 ## Public Surface
 
@@ -16,6 +16,10 @@ Public MCP tools include:
 - configuration management
 - assembly browsing through `list_assembly_components`
 - selection helpers
+- part, assembly, and drawing analysis tools
+- custom-property and summary-info tools
+- single-document document governance tools, including rename helpers and orphan-file detection
+- single-document cross-reference and equation-reference scans and repairs
 - sketch creation, editing, parametric, inspection, and specialized sketch tools
 - feature creation for extrusion, revolve, fillet, and shell
 - export to STEP, IGES, STL, PDF, and DXF
@@ -29,12 +33,11 @@ Public resources include:
 
 ## Not In The Public Repo
 
-The public/basic distribution does not include:
-- deep model analysis tools such as `analyze_part`, `analyze_assembly`, and `analyze_drawing`
-- batch analysis or batch property workflows
-- custom-property and summary-info tools
-- rename/governance workflows
-- bridge/add-in integration and other internal acceleration layers
+The public distribution does not include:
+- batch analysis, batch property, batch reference, and batch governance workflows
+- bridge/add-in integration, diagnostics, and in-process acceleration layers
+- SWOOD-specific tools and dependencies
+- private Document Manager acceleration paths
 
 ## Installation
 
@@ -130,12 +133,12 @@ Template resolution order for document creation:
 
 ## Architecture
 
-The public/basic repo follows a consistent structure:
+The public repo follows a consistent structure:
 - `SolidWorks2023Adapter` is the public routing and composition root
 - public operation catalogs live in `src/FurniOx.SolidWorks.Core/Operations/`
 - large domains use thin coordinators plus focused sub-handlers
 - MCP tool classes are split by capability family
-- the public surface is intentionally kept free of internal bridge, batch, governance, and deep-analysis code
+- the public tool surface is intentionally kept free of internal bridge, batch, add-in, diagnostic, and SWOOD tools
 
 ## Project Layout
 
@@ -153,7 +156,7 @@ tests/
 
 ## Open-Core Model
 
-This repository is the public/basic MCP surface.
+This repository is the public MCP surface.
 
 Internal/private extensions are maintained separately and are not required to build or use the public server. The public boundary is enforced by the solution layout, project references, and `scripts/check-public-boundary.ps1`.
 

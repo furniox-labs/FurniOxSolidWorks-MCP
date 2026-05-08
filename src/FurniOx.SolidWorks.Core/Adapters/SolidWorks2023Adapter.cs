@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FurniOx.SolidWorks.Core.Adapters.Analysis;
 using FurniOx.SolidWorks.Core.Adapters.Document;
 using FurniOx.SolidWorks.Core.Adapters.Features;
 using FurniOx.SolidWorks.Core.Adapters.SketchAdvanced;
@@ -22,8 +23,8 @@ namespace FurniOx.SolidWorks.Core.Adapters;
 
 /// <summary>
 /// Public SolidWorks adapter - handles the open-source MCP surface only.
-/// Private analysis, metadata, governance, and bridge-backed flows are layered
-/// in a separate private adapter/project.
+/// Batch analysis, batch metadata, batch governance, and bridge-backed flows
+/// are intentionally layered outside this adapter.
 /// </summary>
 public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
 {
@@ -35,6 +36,17 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
     private readonly ConfigurationOperations _configOps;
     private readonly SelectionOperations _selectionOps;
     private readonly SortingOperations _sortingOps;
+    private readonly AnalysisOperations _analysisOps;
+    private readonly CustomPropertyOperations _customPropertyOps;
+    private readonly SummaryInfoOperations _summaryInfoOps;
+    private readonly CrossReferenceOperations _crossReferenceOps;
+    private readonly EquationReferenceOperations _equationReferenceOps;
+    private readonly DocumentRenameOperations _documentRenameOps;
+    private readonly DocumentRenameAnywhereOperations _documentRenameAnywhereOps;
+    private readonly DocumentRenameQueryOperations _documentRenameQueryOps;
+    private readonly DocumentSuppressionOperations _documentSuppressionOps;
+    private readonly DocumentReferenceReplacementOperations _documentReferenceReplacementOps;
+    private readonly DocumentReferenceSearchPathOperations _documentReferenceSearchPathOps;
     private readonly SolidWorksConnection _connection;
 
     public SolidWorks2023Adapter(
@@ -53,6 +65,17 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
         _configOps = new ConfigurationOperations(connection, settings, loggerFactory);
         _selectionOps = new SelectionOperations(connection, settings, loggerFactory);
         _sortingOps = CreateSortingOperations(connection, settings, loggerFactory);
+        _analysisOps = CreateAnalysisOperations(connection, settings, loggerFactory);
+        _customPropertyOps = CreateCustomPropertyOperations(connection, settings, loggerFactory);
+        _summaryInfoOps = new SummaryInfoOperations(connection, settings, loggerFactory.CreateLogger<SummaryInfoOperations>());
+        _crossReferenceOps = new CrossReferenceOperations(connection, settings, loggerFactory.CreateLogger<CrossReferenceOperations>());
+        _equationReferenceOps = new EquationReferenceOperations(connection, settings, loggerFactory.CreateLogger<EquationReferenceOperations>());
+        _documentRenameOps = CreateDocumentRenameOperations(connection, settings, loggerFactory);
+        _documentRenameAnywhereOps = new DocumentRenameAnywhereOperations(connection, settings, loggerFactory.CreateLogger<DocumentRenameAnywhereOperations>());
+        _documentRenameQueryOps = new DocumentRenameQueryOperations(connection, settings, loggerFactory.CreateLogger<DocumentRenameQueryOperations>());
+        _documentSuppressionOps = new DocumentSuppressionOperations(connection, settings, loggerFactory.CreateLogger<DocumentSuppressionOperations>());
+        _documentReferenceReplacementOps = new DocumentReferenceReplacementOperations(connection, settings, loggerFactory.CreateLogger<DocumentReferenceReplacementOperations>());
+        _documentReferenceSearchPathOps = new DocumentReferenceSearchPathOperations(connection, settings, loggerFactory.CreateLogger<DocumentReferenceSearchPathOperations>());
     }
 
     public bool CanHandle(string operation) => SolidWorksOperationCatalog.Known.Contains(operation);
@@ -70,7 +93,6 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
 
         return operation switch
         {
-            var op when op.StartsWith("Document.") => await _documentOps.ExecuteAsync(operation, parameters, cancellationToken),
             var op when op.StartsWith("Export.") => await _exportOps.ExecuteAsync(operation, parameters, cancellationToken),
             var op when op.StartsWith("AssemblyBrowser.") => await _assemblyBrowserOps.ExecuteAsync(operation, parameters, cancellationToken),
             var op when op.StartsWith("Configuration.") => await _configOps.ExecuteAsync(operation, parameters, cancellationToken),
@@ -78,6 +100,21 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
             var op when op.StartsWith("Sketch.") => await _sketchOps.ExecuteAsync(operation, parameters, cancellationToken),
             var op when op.StartsWith("Feature.") => await _featureOps.ExecuteAsync(operation, parameters, cancellationToken),
             var op when op.StartsWith("Sorting.") => await _sortingOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when op.StartsWith("Analysis.") => await _analysisOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when op.StartsWith("CustomProperty.") => await _customPropertyOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when op.StartsWith("SummaryInfo.") => await _summaryInfoOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when CrossReferenceOperationNames.All.Contains(op) => await _crossReferenceOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when EquationOperationNames.All.Contains(op) => await _equationReferenceOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.RenameDocument => await _documentRenameOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.RenameComponentFile => await _documentRenameOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.RenameComponentInstance => await _documentRenameOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.RenameComponentAnywhere => await _documentRenameAnywhereOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.GetRenamedDocuments => await _documentRenameQueryOps.ExecuteAsync(operation, parameters, cancellationToken),
+            DocumentGovernanceOperationNames.DetectOrphanFiles => await _documentRenameQueryOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when DocumentSuppressionOperationNames.All.Contains(op) => await _documentSuppressionOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when DocumentReferenceReplacementOperationNames.All.Contains(op) => await _documentReferenceReplacementOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when DocumentReferenceSearchPathOperationNames.All.Contains(op) => await _documentReferenceSearchPathOps.ExecuteAsync(operation, parameters, cancellationToken),
+            var op when op.StartsWith("Document.") => await _documentOps.ExecuteAsync(operation, parameters, cancellationToken),
             _ => ExecutionResult.Failure($"Operation not implemented: {operation}")
         };
     }
@@ -109,6 +146,24 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
             loggerFactory.CreateLogger<DocumentOperations>(),
             lifecycleOperations,
             queryOperations);
+    }
+
+    private static DocumentRenameOperations CreateDocumentRenameOperations(
+        SolidWorksConnection connection,
+        SolidWorksSettings settings,
+        ILoggerFactory loggerFactory)
+    {
+        var fileRenameOperations = new DocumentFileRenameOperations(connection, settings, loggerFactory.CreateLogger<DocumentFileRenameOperations>());
+        var componentFileRenameOperations = new DocumentComponentFileRenameOperations(connection, settings, loggerFactory.CreateLogger<DocumentComponentFileRenameOperations>());
+        var componentInstanceRenameOperations = new DocumentComponentInstanceRenameOperations(connection, settings, loggerFactory.CreateLogger<DocumentComponentInstanceRenameOperations>());
+
+        return new DocumentRenameOperations(
+            connection,
+            settings,
+            loggerFactory.CreateLogger<DocumentRenameOperations>(),
+            fileRenameOperations,
+            componentFileRenameOperations,
+            componentInstanceRenameOperations);
     }
 
     private static SketchOperations CreateSketchOperations(
@@ -227,5 +282,39 @@ public sealed class SolidWorks2023Adapter : ISolidWorksAdapter, IDisposable
             componentReorderOperations,
             featureReorderOperations,
             inspectionOperations);
+    }
+
+    private static AnalysisOperations CreateAnalysisOperations(
+        SolidWorksConnection connection,
+        SolidWorksSettings settings,
+        ILoggerFactory loggerFactory)
+    {
+        var partOps = new PartAnalysisOperations(connection, settings, loggerFactory.CreateLogger<PartAnalysisOperations>());
+        var assemblyOps = new AssemblyAnalysisOperations(connection, settings, loggerFactory.CreateLogger<AssemblyAnalysisOperations>(), propertyReader: null);
+        var drawingOps = new DrawingAnalysisOperations(connection, settings, loggerFactory.CreateLogger<DrawingAnalysisOperations>());
+
+        return new AnalysisOperations(
+            connection,
+            settings,
+            loggerFactory.CreateLogger<AnalysisOperations>(),
+            partOps,
+            assemblyOps,
+            drawingOps);
+    }
+
+    private static CustomPropertyOperations CreateCustomPropertyOperations(
+        SolidWorksConnection connection,
+        SolidWorksSettings settings,
+        ILoggerFactory loggerFactory)
+    {
+        var readOps = new CustomPropertyReadOperations(connection, settings, loggerFactory.CreateLogger<CustomPropertyReadOperations>());
+        var writeOps = new CustomPropertyWriteOperations(connection, settings, loggerFactory.CreateLogger<CustomPropertyWriteOperations>());
+
+        return new CustomPropertyOperations(
+            connection,
+            settings,
+            loggerFactory.CreateLogger<CustomPropertyOperations>(),
+            readOps,
+            writeOps);
     }
 }

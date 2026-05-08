@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FurniOx.SolidWorks.Core.Connection;
@@ -101,6 +103,13 @@ public sealed class DocumentFileOperations : OperationHandlerBase
 
         var options = GetIntParam(parameters, "Options", (int)swOpenDocOptions_e.swOpenDocOptions_Silent);
         var configuration = GetStringParam(parameters, "Configuration");
+        var silent = GetBoolParam(parameters, "Silent", HasFlag(options, swOpenDocOptions_e.swOpenDocOptions_Silent));
+        var readOnly = GetBoolParam(parameters, "ReadOnly", HasFlag(options, swOpenDocOptions_e.swOpenDocOptions_ReadOnly));
+        var ignoreHiddenComponents = GetBoolParam(parameters, "IgnoreHiddenComponents", HasFlag(options, swOpenDocOptions_e.swOpenDocOptions_DontLoadHiddenComponents));
+        var lightWeight = GetBoolParam(parameters, "LightWeight",
+            HasFlag(options, swOpenDocOptions_e.swOpenDocOptions_LoadLightweight)
+            || HasFlag(options, swOpenDocOptions_e.swOpenDocOptions_OverrideDefaultLoadLightweight));
+        var visible = GetBoolParam(parameters, "Visible", true);
 
         var specification = (IDocumentSpecification?)app.GetOpenDocSpec(path);
         if (specification == null)
@@ -109,16 +118,28 @@ public sealed class DocumentFileOperations : OperationHandlerBase
         }
 
         specification.DocumentType = docType;
-        specification.ReadOnly = (options & (int)swOpenDocOptions_e.swOpenDocOptions_ReadOnly) != 0;
-        specification.Silent = (options & (int)swOpenDocOptions_e.swOpenDocOptions_Silent) != 0;
+        specification.ReadOnly = readOnly;
+        specification.Silent = silent;
         specification.ViewOnly = (options & (int)swOpenDocOptions_e.swOpenDocOptions_ViewOnly) != 0;
+        specification.IgnoreHiddenComponents = ignoreHiddenComponents;
+        specification.LightWeight = lightWeight;
 
         if (!string.IsNullOrEmpty(configuration))
         {
             specification.ConfigurationName = configuration;
         }
 
-        var model = (ModelDoc2?)app.OpenDoc7(specification);
+        ModelDoc2? model;
+        using (DocumentVisibilityScope.HideNewDocuments(app, !visible, docType))
+        using (silent ? new DialogSuppressionScope(app, _logger) : null)
+        {
+            model = (ModelDoc2?)app.OpenDoc7(specification);
+            if (!visible)
+            {
+                DocumentVisibilityScope.TryHide(model);
+            }
+        }
+
         var errors = specification.Error;
         var warnings = specification.Warning;
 
@@ -136,7 +157,12 @@ public sealed class DocumentFileOperations : OperationHandlerBase
             TypeName = ((swDocumentTypes_e)docType).ToString(),
             Errors = errors,
             Warnings = warnings,
-            ConfigurationName = configuration
+            ConfigurationName = configuration,
+            Silent = silent,
+            ReadOnly = readOnly,
+            IgnoreHiddenComponents = ignoreHiddenComponents,
+            LightWeight = lightWeight,
+            Visible = SafeBool(() => model.Visible)
         }));
     }
 
@@ -154,9 +180,22 @@ public sealed class DocumentFileOperations : OperationHandlerBase
             return Task.FromResult(ExecutionResult.Failure("No active document"));
         }
 
+        var silent = GetBoolParam(parameters, "Silent", true);
+        var suppressSaveDialogs = GetBoolParam(parameters, "SuppressSaveDialogs", silent);
+        var saveReferences = GetBoolParam(parameters, "SaveReferences", false);
+        var forceRebuildBeforeSave = GetBoolParam(parameters, "ForceRebuildBeforeSave", false);
+        var includeCleanReferences = GetBoolParam(parameters, "IncludeCleanReferences", false);
+
+        using var suppressionScope = suppressSaveDialogs ? new DialogSuppressionScope(app, _logger) : null;
         var extension = model.Extension;
         var hasRenamedDocs = extension.HasRenamedDocuments();
         var saveMethod = "Save3";
+        bool? rebuiltBeforeSave = null;
+
+        if (forceRebuildBeforeSave)
+        {
+            rebuiltBeforeSave = SafeBool(() => model.ForceRebuild3(false));
+        }
 
         if (parameters.TryGetValue("Path", out var pathObj) && pathObj is string path)
         {
@@ -170,7 +209,7 @@ public sealed class DocumentFileOperations : OperationHandlerBase
             var result = model.Extension.SaveAs3(
                 path,
                 (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
-                (int)swSaveAsOptions_e.swSaveAsOptions_Silent,
+                BuildSaveOptions(silent, saveReferences: false),
                 null,
                 null,
                 ref errors,
@@ -183,7 +222,8 @@ public sealed class DocumentFileOperations : OperationHandlerBase
                     ErrorCode = errors,
                     ErrorDecoded = DocumentSaveHelper.DecodeSaveErrorBitmask(errors),
                     Warnings = warnings,
-                    HasRenamedDocuments = hasRenamedDocs
+                    HasRenamedDocuments = hasRenamedDocs,
+                    AutoDismissedDialogCount = suppressionScope?.ClosedDialogCount ?? 0
                 }));
             }
 
@@ -193,7 +233,12 @@ public sealed class DocumentFileOperations : OperationHandlerBase
                 Path = path,
                 Errors = errors,
                 Warnings = warnings,
-                SaveMethod = "SaveAs3"
+                SaveMethod = "SaveAs3",
+                RebuiltBeforeSave = rebuiltBeforeSave,
+                ForceRebuildBeforeSave = forceRebuildBeforeSave,
+                Silent = silent,
+                SuppressSaveDialogs = suppressSaveDialogs,
+                AutoDismissedDialogCount = suppressionScope?.ClosedDialogCount ?? 0
             }));
         }
 
@@ -204,13 +249,19 @@ public sealed class DocumentFileOperations : OperationHandlerBase
         if (hasRenamedDocs)
         {
             _logger.LogDebug("HasRenamedDocuments=true: Using SaveWithRenamedReferences for SaveModel");
-            saved = DocumentSaveHelper.SaveWithRenamedReferences(model, _logger, out saveErrors, out saveWarnings);
+            saved = DocumentSaveHelper.SaveWithRenamedReferences(
+                model,
+                _logger,
+                out saveErrors,
+                out saveWarnings,
+                null,
+                suppressSaveDialogs ? app : null);
             saveMethod = "SaveWithRenamedReferences";
         }
         else
         {
             saved = model.Save3(
-                (int)swSaveAsOptions_e.swSaveAsOptions_Silent,
+                BuildSaveOptions(silent, saveReferences),
                 ref saveErrors,
                 ref saveWarnings);
 
@@ -220,7 +271,13 @@ public sealed class DocumentFileOperations : OperationHandlerBase
                     "Save3 failed with error {Errors} ({ErrorDecoded}), trying SaveWithRenamedReferences fallback",
                     saveErrors,
                     DocumentSaveHelper.DecodeSaveErrorBitmask(saveErrors));
-                saved = DocumentSaveHelper.SaveWithRenamedReferences(model, _logger, out saveErrors, out saveWarnings);
+                saved = DocumentSaveHelper.SaveWithRenamedReferences(
+                    model,
+                    _logger,
+                    out saveErrors,
+                    out saveWarnings,
+                    null,
+                    suppressSaveDialogs ? app : null);
                 saveMethod = "SaveWithRenamedReferences (fallback)";
             }
         }
@@ -233,9 +290,24 @@ public sealed class DocumentFileOperations : OperationHandlerBase
                 ErrorDecoded = DocumentSaveHelper.DecodeSaveErrorBitmask(saveErrors),
                 Warnings = saveWarnings,
                 HasRenamedDocuments = hasRenamedDocs,
-                SaveMethod = saveMethod
+                SaveMethod = saveMethod,
+                RebuiltBeforeSave = rebuiltBeforeSave,
+                ForceRebuildBeforeSave = forceRebuildBeforeSave,
+                Silent = silent,
+                SuppressSaveDialogs = suppressSaveDialogs,
+                AutoDismissedDialogCount = suppressionScope?.ClosedDialogCount ?? 0
             }));
         }
+
+        var referenceResults = saveReferences
+            ? SaveLoadedReferencedDocuments(
+                app,
+                model,
+                silent,
+                suppressSaveDialogs,
+                forceRebuildBeforeSave,
+                includeCleanReferences)
+            : null;
 
         return Task.FromResult(ExecutionResult.SuccessResult(new
         {
@@ -243,8 +315,177 @@ public sealed class DocumentFileOperations : OperationHandlerBase
             Errors = saveErrors,
             Warnings = saveWarnings,
             HasRenamedDocuments = hasRenamedDocs,
-            SaveMethod = saveMethod
+            SaveMethod = saveMethod,
+            References = referenceResults,
+            DirtyAfterSave = SafeBool(() => model.GetSaveFlag()),
+            RebuiltBeforeSave = rebuiltBeforeSave,
+            ForceRebuildBeforeSave = forceRebuildBeforeSave,
+            IncludeCleanReferences = includeCleanReferences,
+            Silent = silent,
+            SuppressSaveDialogs = suppressSaveDialogs,
+            AutoDismissedDialogCount = suppressionScope?.ClosedDialogCount ?? 0
         }));
+    }
+
+    private static object SaveLoadedReferencedDocuments(
+        SldWorks app,
+        ModelDoc2 topModel,
+        bool silent,
+        bool suppressSaveDialogs,
+        bool forceRebuildBeforeSave,
+        bool includeCleanReferences)
+    {
+        var topPath = SafeString(() => topModel.GetPathName());
+        var saved = new List<object>();
+        var skipped = new List<object>();
+        var failed = new List<object>();
+
+        foreach (var doc in EnumerateOpenDocuments(app))
+        {
+            var path = SafeString(() => doc.GetPathName());
+            var title = SafeString(() => doc.GetTitle());
+            if (string.Equals(path, topPath, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var dirtyBeforeRebuild = SafeBool(() => doc.GetSaveFlag());
+            bool? rebuildResult = null;
+            if (forceRebuildBeforeSave)
+            {
+                rebuildResult = SafeBool(() => doc.ForceRebuild3(false));
+            }
+
+            var dirtyBeforeSave = SafeBool(() => doc.GetSaveFlag());
+            if (!dirtyBeforeSave && !includeCleanReferences && !forceRebuildBeforeSave)
+            {
+                skipped.Add(new { Title = title, Path = path, Reason = "not dirty" });
+                continue;
+            }
+
+            if (SafeBool(() => doc.IsOpenedReadOnly()))
+            {
+                skipped.Add(new { Title = title, Path = path, Reason = "read-only" });
+                continue;
+            }
+
+            var hasRenamedDocuments = SafeBool(() => doc.Extension.HasRenamedDocuments());
+            var saveMethod = hasRenamedDocuments ? "SaveWithRenamedReferences" : "Save3";
+            int errors = 0;
+            int warnings = 0;
+            var ok = hasRenamedDocuments
+                ? DocumentSaveHelper.SaveWithRenamedReferences(
+                    doc,
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,
+                    out errors,
+                    out warnings,
+                    null,
+                    suppressSaveDialogs ? app : null)
+                : doc.Save3(BuildSaveOptions(silent, saveReferences: false), ref errors, ref warnings);
+
+            if ((!ok || errors != 0) && (errors & 0x2000) != 0)
+            {
+                saveMethod = "SaveWithRenamedReferences (fallback)";
+                ok = DocumentSaveHelper.SaveWithRenamedReferences(
+                    doc,
+                    Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,
+                    out errors,
+                    out warnings,
+                    null,
+                    suppressSaveDialogs ? app : null);
+            }
+
+            var result = new
+            {
+                Title = title,
+                Path = path,
+                SaveMethod = saveMethod,
+                HasRenamedDocuments = hasRenamedDocuments,
+                DirtyBeforeRebuild = dirtyBeforeRebuild,
+                RebuildResult = rebuildResult,
+                DirtyBeforeSave = dirtyBeforeSave,
+                DirtyAfterSave = SafeBool(() => doc.GetSaveFlag()),
+                Errors = errors,
+                ErrorDecoded = DocumentSaveHelper.DecodeSaveErrorBitmask(errors),
+                Warnings = warnings
+            };
+
+            if (ok && errors == 0)
+            {
+                saved.Add(result);
+            }
+            else
+            {
+                failed.Add(result);
+            }
+        }
+
+        return new
+        {
+            SavedCount = saved.Count,
+            SkippedCount = skipped.Count,
+            FailedCount = failed.Count,
+            Saved = saved,
+            Skipped = skipped,
+            Failed = failed
+        };
+    }
+
+    private static IReadOnlyList<ModelDoc2> EnumerateOpenDocuments(SldWorks app)
+    {
+        try
+        {
+            return app.GetDocuments().ToObjectArraySafe()?
+                .OfType<ModelDoc2>()
+                .ToArray() ?? Array.Empty<ModelDoc2>();
+        }
+        catch
+        {
+            return Array.Empty<ModelDoc2>();
+        }
+    }
+
+    private static int BuildSaveOptions(bool silent, bool saveReferences)
+    {
+        var options = 0;
+        if (silent)
+        {
+            options |= (int)swSaveAsOptions_e.swSaveAsOptions_Silent;
+        }
+
+        if (saveReferences)
+        {
+            options |= (int)swSaveAsOptions_e.swSaveAsOptions_SaveReferenced;
+        }
+
+        return options;
+    }
+
+    private static bool HasFlag(int value, swOpenDocOptions_e flag)
+        => (value & (int)flag) != 0;
+
+    private static bool SafeBool(Func<bool> read)
+    {
+        try
+        {
+            return read();
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string SafeString(Func<string?> read, string fallback = "")
+    {
+        try
+        {
+            return read() ?? fallback;
+        }
+        catch
+        {
+            return fallback;
+        }
     }
 
     private string? ResolveTemplatePath(SldWorks app, int docType)

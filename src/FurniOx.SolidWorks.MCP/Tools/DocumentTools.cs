@@ -15,23 +15,46 @@ public sealed class DocumentTools : ToolsBase
 {
     public DocumentTools(ISmartRouter router) : base(router) { }
 
-    [McpServerTool, Description("Open existing model")]
+    [McpServerTool, Description("Open existing model. With silent=true (default) missing references become suppressed components instead of triggering a dialog. visible=false opens/hides with lower GUI footprint.")]
     public async Task<object?> OpenModel(
         [Description("File path")] string path,
-        [Description("Type: 1=Part, 2=Assembly, 3=Drawing")] int type = 1)
+        [Description("Type: 1=Part, 2=Assembly, 3=Drawing")] int type = 1,
+        [Description("Suppress dialogs. Default true.")] bool silent = true,
+        [Description("Open read-only. Default false.")] bool readOnly = false,
+        [Description("Skip loading hidden components. Default false.")] bool ignoreHiddenComponents = false,
+        [Description("Open lightweight. Default false.")] bool lightWeight = false,
+        [Description("If false, hide the model window after load. Default true.")] bool visible = true)
     {
         var parameters = new Dictionary<string, object?>
         {
             ["Path"] = path,
-            ["Type"] = type
+            ["Type"] = type,
+            ["Silent"] = silent,
+            ["ReadOnly"] = readOnly,
+            ["IgnoreHiddenComponents"] = ignoreHiddenComponents,
+            ["LightWeight"] = lightWeight,
+            ["Visible"] = visible
         };
         return await ExecuteToolAsync("Document.OpenModel", parameters);
     }
 
-    [McpServerTool, Description("[IDEMPOTENT] Save model")]
-    public async Task<object?> SaveModel()
+    [McpServerTool, Description("[IDEMPOTENT] Save the active model. For assemblies whose referenced sub-assemblies or parts are also dirty, set saveReferences=true to save them too. forceRebuildBeforeSave/includeCleanReferences can rewrite stale cached reference paths in loaded docs.")]
+    public async Task<object?> SaveModel(
+        [Description("If true, also save loaded, non-read-only referenced documents. Default false.")] bool saveReferences = false,
+        [Description("Use SolidWorks silent save options where available. Default true.")] bool silent = true,
+        [Description("Suppress save dialogs and return error details instead of allowing SolidWorks modal prompts. Default true.")] bool suppressSaveDialogs = true,
+        [Description("Force a rebuild before saving the active document and, when saveReferences=true, each loaded referenced document. Default false.")] bool forceRebuildBeforeSave = false,
+        [Description("When saveReferences=true, also attempt to save loaded referenced documents even if SolidWorks does not mark them dirty. Default false.")] bool includeCleanReferences = false)
     {
-        return await ExecuteToolAsync("Document.SaveModel");
+        var parameters = new Dictionary<string, object?>
+        {
+            ["SaveReferences"] = saveReferences,
+            ["Silent"] = silent,
+            ["SuppressSaveDialogs"] = suppressSaveDialogs,
+            ["ForceRebuildBeforeSave"] = forceRebuildBeforeSave,
+            ["IncludeCleanReferences"] = includeCleanReferences
+        };
+        return await ExecuteToolAsync("Document.SaveModel", parameters);
     }
 
     [McpServerTool, Description("[DESTRUCTIVE] Close model (unsaved changes may be lost)")]
@@ -104,9 +127,9 @@ public sealed class DocumentTools : ToolsBase
         return await ExecuteToolAsync("Document.GetDocumentCount");
     }
 
-    [McpServerTool, Description("[DESTRUCTIVE] Close all documents")]
+    [McpServerTool, Description("[DESTRUCTIVE] Close all documents. Defaults includeUnsaved=true for batch/repair workflows; pass false to preserve dirty documents and get a clear failure if they remain open.")]
     public async Task<object?> CloseAllDocuments(
-        [Description("Include unsaved")] bool includeUnsaved = false)
+        [Description("If true, force-close dirty documents too. Default true for batch workflows.")] bool includeUnsaved = true)
     {
         var parameters = new Dictionary<string, object?>
         {

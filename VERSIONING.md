@@ -9,6 +9,7 @@ This project uses Semantic Versioning with prerelease tags.
 Examples:
 - `0.1.0-alpha.1`
 - `0.1.0-alpha.2`
+- `0.1.0-alpha.3`
 - `0.1.0-beta.1`
 - `0.1.0-rc.1`
 - `0.1.0`
@@ -46,15 +47,15 @@ Examples:
 Typical path:
 
 ```text
-0.1.0-alpha.1 -> 0.1.0-alpha.2 -> 0.1.0-beta.1 -> 0.1.0-rc.1 -> 0.1.0
+0.1.0-alpha.1 -> 0.1.0-alpha.2 -> 0.1.0-alpha.3 -> 0.1.0-beta.1 -> 0.1.0-rc.1 -> 0.1.0
 ```
 
 ## Current Release Policy
 
 The public repo is currently in alpha.
 
-- Current version: `0.1.0-alpha.2`
-- Status: working public/basic MCP
+- Current version: `0.1.0-alpha.3`
+- Status: working public MCP with expanded single-document governance, analysis, metadata, and reference-check tools
 - Validation note: more testing is needed across SolidWorks installs, templates, and real-world assemblies
 
 ## Tagging Convention
@@ -62,7 +63,7 @@ The public repo is currently in alpha.
 All releases are tagged:
 
 ```bash
-git tag -a v0.1.0-alpha.1 -m "Alpha release 0.1.0-alpha.1"
+git tag -a v0.1.0-alpha.3 -m "Alpha release 0.1.0-alpha.3"
 git tag -a v0.1.0-beta.1 -m "Beta release 0.1.0-beta.1"
 git tag -a v0.1.0 -m "Stable release 0.1.0"
 ```

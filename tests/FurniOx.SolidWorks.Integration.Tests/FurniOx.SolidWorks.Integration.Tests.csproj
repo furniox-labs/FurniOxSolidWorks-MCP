@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\src\FurniOx.SolidWorks.Shared\FurniOx.SolidWorks.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="BridgeParity\**\*.cs" />
+  </ItemGroup>
+
 </Project>

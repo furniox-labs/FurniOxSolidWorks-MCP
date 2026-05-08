@@ -141,12 +141,93 @@ public sealed class DocumentSessionOperations : OperationHandlerBase
             return Task.FromResult(ExecutionResult.Failure("Not connected to SolidWorks"));
         }
 
-        var includeUnsaved = GetBoolParam(parameters, "IncludeUnsaved");
+        var includeUnsaved = GetBoolParam(parameters, "IncludeUnsaved", true);
+        var before = SnapshotOpenDocuments(app);
         var result = app.CloseAllDocuments(includeUnsaved);
+        var remaining = SnapshotOpenDocuments(app);
+        var closedCount = Math.Max(0, before.Count - remaining.Count);
+
+        if (remaining.Count > 0)
+        {
+            return Task.FromResult(ExecutionResult.Failure(
+                $"close_all_documents left {remaining.Count} document(s) open. " +
+                (includeUnsaved
+                    ? "They may be locked, in-use, or in active edit mode."
+                    : "Pass includeUnsaved=true to force-close dirty documents."),
+                new
+                {
+                    ClosedCount = closedCount,
+                    IncludedUnsaved = includeUnsaved,
+                    ExecutionResult = result,
+                    RemainingDocuments = remaining
+                }));
+        }
 
         return result
-            ? Task.FromResult(ExecutionResult.SuccessResult(new { ClosedAll = true, IncludedUnsaved = includeUnsaved }))
+            ? Task.FromResult(ExecutionResult.SuccessResult(new
+            {
+                ClosedAll = true,
+                ClosedCount = closedCount,
+                IncludedUnsaved = includeUnsaved
+            }))
             : Task.FromResult(ExecutionResult.Failure("Failed to close all documents"));
+    }
+
+    private static List<object> SnapshotOpenDocuments(SldWorks app)
+    {
+        var documents = new List<object>();
+        try
+        {
+            var rawDocuments = app.GetDocuments();
+            if (rawDocuments == null)
+            {
+                return documents;
+            }
+
+            foreach (var docObj in rawDocuments.ToObjectArraySafe() ?? Array.Empty<object>())
+            {
+                if (docObj is not ModelDoc2 doc)
+                {
+                    continue;
+                }
+
+                documents.Add(new
+                {
+                    Title = SafeString(() => doc.GetTitle()),
+                    Path = SafeString(() => doc.GetPathName()),
+                    Dirty = SafeBool(() => doc.GetSaveFlag())
+                });
+            }
+        }
+        catch
+        {
+        }
+
+        return documents;
+    }
+
+    private static string SafeString(Func<string?> read, string fallback = "")
+    {
+        try
+        {
+            return read() ?? fallback;
+        }
+        catch
+        {
+            return fallback;
+        }
+    }
+
+    private static bool SafeBool(Func<bool> read)
+    {
+        try
+        {
+            return read();
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private Task<ExecutionResult> EditUndoAsync(IDictionary<string, object?> parameters)

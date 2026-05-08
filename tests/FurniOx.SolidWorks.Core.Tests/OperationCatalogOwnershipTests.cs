@@ -50,6 +50,15 @@ public sealed class OperationCatalogOwnershipTests
             .Concat(SketchOperationNames.All)
             .Concat(FeatureOperationNames.All)
             .Concat(SortingOperationNames.All)
+            .Concat(AnalysisOperationNames.All)
+            .Concat(CustomPropertyOperationNames.All)
+            .Concat(SummaryInfoOperationNames.All)
+            .Concat(CrossReferenceOperationNames.All)
+            .Concat(EquationOperationNames.All)
+            .Concat(DocumentGovernanceOperationNames.All)
+            .Concat(DocumentSuppressionOperationNames.All)
+            .Concat(DocumentReferenceReplacementOperationNames.All)
+            .Concat(DocumentReferenceSearchPathOperationNames.All)
             .ToArray();
 
         Assert.Equal(allDomainOperations.Length, allDomainOperations.Distinct().Count());

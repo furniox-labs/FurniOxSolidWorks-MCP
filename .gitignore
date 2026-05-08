@@ -196,11 +196,16 @@ reference/**/*.log
 config.local.json
 secrets.json
 .mcp.json
-.claude/settings.local.json
+.claude/
 .dotnet/
 .dotnet_cli/
 src/FurniOx.SolidWorks.MCP/appsettings.local.json
 src/FurniOx.SolidWorks.MCP.Private/appsettings.private.local.json
+appsettings.private.json
+src/**/appsettings.private.json
+src/FurniOx.SolidWorks.MCP*/bridge/
+docs/SWOOD/
+docs/archive/
 
 # Archives
 *.tar

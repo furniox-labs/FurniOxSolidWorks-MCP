@@ -14,6 +14,15 @@ public static class SolidWorksOperationCatalog
             .Concat(SketchOperationNames.All)
             .Concat(FeatureOperationNames.All)
             .Concat(SortingOperationNames.All)
+            .Concat(AnalysisOperationNames.All)
+            .Concat(CustomPropertyOperationNames.All)
+            .Concat(SummaryInfoOperationNames.All)
+            .Concat(CrossReferenceOperationNames.All)
+            .Concat(EquationOperationNames.All)
+            .Concat(DocumentGovernanceOperationNames.All)
+            .Concat(DocumentSuppressionOperationNames.All)
+            .Concat(DocumentReferenceReplacementOperationNames.All)
+            .Concat(DocumentReferenceSearchPathOperationNames.All)
             .ToArray();
 
     public static readonly ISet<string> Known = new HashSet<string>(All);

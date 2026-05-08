@@ -10,9 +10,64 @@ namespace FurniOx.SolidWorks.Core.Adapters.Document;
 internal static class DocumentSaveHelper
 {
     public static bool SaveWithRenamedReferences(ModelDoc2 model, ILogger logger, out int errors, out int warnings)
+        => SaveWithRenamedReferences(model, logger, out errors, out warnings, null, null);
+
+    public static bool SaveWithRenamedReferences(
+        ModelDoc2 model,
+        ILogger logger,
+        out int errors,
+        out int warnings,
+        IEnumerable<string>? searchFolders,
+        SldWorks? app)
     {
         errors = 0;
         warnings = 0;
+
+        using var suppressionScope = app != null ? new DialogSuppressionScope(app, logger) : null;
+
+        int ConfigureRenamedReferences(ref object refsObj)
+        {
+            try
+            {
+                if (refsObj is IRenamedDocumentReferences refs)
+                {
+                    refs.UpdateWhereUsedReferences = true;
+                    refs.IncludeFileLocations = true;
+
+                    foreach (var folder in BuildSearchFolders(model, searchFolders))
+                    {
+                        try { refs.AddSearchFolder(folder); }
+                        catch (Exception ex) { logger.LogDebug(ex, "Failed to add renamed-reference search folder {Folder}", folder); }
+                    }
+
+                    try { refs.Search(); }
+                    catch (Exception ex) { logger.LogDebug(ex, "Renamed-reference search failed"); }
+
+                    refs.CompletionAction = (int)swRenamedDocumentFinalAction_e.swRenamedDocumentFinalAction_Ok;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to configure RenamedDocumentReferences");
+            }
+
+            return 0;
+        }
+
+        DAssemblyDocEvents_RenamedDocumentNotifyEventHandler assemblyHandler = ConfigureRenamedReferences;
+        DPartDocEvents_RenamedDocumentNotifyEventHandler partHandler = ConfigureRenamedReferences;
+
+        var assemblyDoc = model as AssemblyDoc;
+        var partDoc = model as PartDoc;
+        if (assemblyDoc != null)
+        {
+            assemblyDoc.RenamedDocumentNotify += assemblyHandler;
+        }
+
+        if (partDoc != null)
+        {
+            partDoc.RenamedDocumentNotify += partHandler;
+        }
 
         try
         {
@@ -48,7 +103,7 @@ internal static class DocumentSaveHelper
                 if (namesObj != null && pathsObj != null)
                 {
                     logger.LogDebug("Got items from AdvancedSaveAsOptions, committing rename changes");
-                    advancedOptions.ModifyItemsNameAndPath(namesObj, pathsObj, pathsObj);
+                    advancedOptions.ModifyItemsNameAndPath(idsObj, namesObj, pathsObj);
                 }
             }
 
@@ -69,6 +124,18 @@ internal static class DocumentSaveHelper
             logger.LogError(ex, "SaveWithRenamedReferences failed");
             errors = (int)swFileSaveError_e.swGenericSaveError;
             return false;
+        }
+        finally
+        {
+            if (assemblyDoc != null)
+            {
+                try { assemblyDoc.RenamedDocumentNotify -= assemblyHandler; } catch { }
+            }
+
+            if (partDoc != null)
+            {
+                try { partDoc.RenamedDocumentNotify -= partHandler; } catch { }
+            }
         }
     }
 
@@ -127,5 +194,32 @@ internal static class DocumentSaveHelper
 
         var decoded = DecodeSaveErrorBitmask(errorCode);
         return $"{errorCode} (0x{errorCode:X}) = {decoded}";
+    }
+
+    private static IReadOnlyList<string> BuildSearchFolders(ModelDoc2 model, IEnumerable<string>? searchFolders)
+    {
+        var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var modelPath = model.GetPathName();
+        if (!string.IsNullOrWhiteSpace(modelPath))
+        {
+            var directory = Path.GetDirectoryName(modelPath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                folders.Add(directory);
+            }
+        }
+
+        if (searchFolders != null)
+        {
+            foreach (var folder in searchFolders)
+            {
+                if (!string.IsNullOrWhiteSpace(folder) && Directory.Exists(folder))
+                {
+                    folders.Add(Path.GetFullPath(folder));
+                }
+            }
+        }
+
+        return folders.ToArray();
     }
 }
